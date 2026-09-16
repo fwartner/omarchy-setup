@@ -15,6 +15,8 @@ A template. Fork it, change a dozen values, run `bootstrap.sh` on a laptop.
 - **restic** backs up nightly to S3-compatible storage, with retries
 - **Repo sync** keeps the projects you actually work on cloned and current
 - **Omarchy plugins** from `packages/plugins.txt`, installed and enabled at bootstrap
+- **Agent skills** from `packages/skills.txt` — Claude Code plugins and plain
+  skill repos, installed at bootstrap and refreshed daily
 - **Tunnels** via [Burrow](https://useburrow.dev) — `tunnel http 3000` exposes a
   local port over HTTPS
 - **Automatic updates**: config every 30 min, everything else daily, via systemd
@@ -68,7 +70,8 @@ only ever read, so they only need `rbw`.
 
 **3. List your repos** in `packages/repos.txt`, and your tools in
 `packages/pacman.txt` / `aur.txt`. `repos.txt` ships empty; sync is a no-op
-until you fill it.
+until you fill it. Coding-agent skills live in `packages/skills.txt` — see
+below.
 
 **4. Per laptop:**
 
@@ -90,6 +93,28 @@ Private fork? The raw URL 404s without a token — see `docs/RUNBOOK.md` §3.
 
 `bootstrap.sh` is idempotent. Re-run it after any change; the daily timer calls
 the same path.
+
+## Agent skills
+
+`packages/skills.txt` is how every laptop ends up with the same skills loaded
+into Claude Code. Two kinds of entry, because skills ship two ways:
+
+```
+plugin  superpowers@claude-plugins-official  anthropics/claude-plugins-official
+skills  https://github.com/michaelshimeles/skills.git
+```
+
+A `plugin` line goes through `claude plugin install`; the third field is the
+marketplace source, added first so a machine that has never seen it can still
+resolve the name. A `skills` line is a plain repo whose top-level directories
+each hold a `SKILL.md` — it is cloned once to `~/.local/share/agent-skills` and
+every skill inside symlinked into `~/.claude/skills`, so one fetch updates all
+of them.
+
+The symlink farm is only ever added to. A real directory, or a symlink pointing
+somewhere the script did not put it, is left in place, so hand-written skills
+and anything chezmoi manages survive a re-run. Skills you want templated per
+machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
 ## Things that will bite you
 
@@ -120,7 +145,7 @@ Expect a surprise or two; `scripts/verify.sh` is what tells you which.
 
 ```sh
 make lint    # shellcheck + bash -n over every script
-make test    # self-checks: repo-sync, shell snippets, hypr bindings
+make test    # self-checks: repo-sync, agent skills, shell snippets, hypr bindings
 ```
 
 CI runs both, plus renders every chezmoi template with fake data.

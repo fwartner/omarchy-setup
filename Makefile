@@ -7,6 +7,7 @@ lint:            ## shellcheck + syntax
 test:            ## run the script self-checks
 	@./tests/repo-sync-test.sh
 	@./tests/bashrc-test.sh
+	@./tests/skills-test.sh
 	@command -v luac >/dev/null 2>&1 && luac -p home/dot_config/hypr/bindings.lua && echo 'bindings.lua: valid Lua' || true
 	@command -v lua >/dev/null 2>&1 && lua tests/bindings-test.lua || echo 'bindings-test: skipped (no lua)'
 

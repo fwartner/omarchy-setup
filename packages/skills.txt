@@ -1,0 +1,28 @@
+# Coding-agent skills, installed by scripts/skills-setup.sh.
+#
+# Skills ship two ways, so there are two kinds of entry. Fields are
+# whitespace-separated; blank lines and # comments are ignored.
+#
+#   plugin  <name>@<marketplace>  [marketplace source]
+#       Installed with `claude plugin install`. The third field is optional: a
+#       GitHub repo or URL added as a marketplace first, so a machine that has
+#       never seen that marketplace can still resolve the name. Both the add
+#       and the install are no-ops when they have already happened.
+#
+#   skills  <git URL>
+#       A plain repo whose top-level directories each hold a SKILL.md. Cloned
+#       to ~/.local/share/agent-skills and every skill inside it symlinked into
+#       ~/.claude/skills, so one fetch updates all of them at once.
+#
+# Either kind is only ever *added* to ~/.claude/skills. A real directory, or a
+# symlink pointing somewhere we did not put it, is left alone — your own skills
+# and anything chezmoi manages survive a re-run.
+
+# Process skills: brainstorming before planning, systematic debugging before
+# guessing, writing plans, TDD. These set the approach; the rest carry it out.
+plugin  superpowers@claude-plugins-official  anthropics/claude-plugins-official
+
+# Workflow skills: worktree-per-task isolation, service-layer architecture,
+# evidence-driven testing, Greptile review loops, before/after screenshots for
+# UI PRs, and unslop for prose a human will read.
+skills  https://github.com/michaelshimeles/skills.git
