@@ -4,6 +4,13 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
 
 ## 0. Before touching the laptop (Mac)
 
+- [x] Vaultwarden two-step login includes **Authenticator (TOTP)**. rbw implements only
+      Authenticator and Email; a WebAuthn-only account fails at `rbw login` with
+      `unsupported two factor methods: WebAuthn`, and no CLI can ever satisfy WebAuthn --
+      it needs a browser and a physical key ceremony. Since bootstrap runs `rbw login` at
+      step 5/9, a WebAuthn-only account blocks every laptop. Keep WebAuthn for browser
+      logins and add TOTP alongside it: Settings -> Security -> Two-step Login ->
+      Authenticator App -> Manage.
 - [x] Vaultwarden is live at `https://secrets.intern.pixelandprocess.de` and `rbw list` works from the Mac (see `apps/internal/vaultwarden/README.md` in pixelandprocess-gitops).
 - [x] All vault items from §Secrets below exist — verified against live infrastructure, not just created: the SSH key round-trips to the key on GitHub, the kubeconfig lists 7 nodes, the AFFiNE token returns its tool list, Home Assistant answers `API running.`, and the restic repo took a real backup and restore.
 - [x] Headscale: `headscale users list` shows `florian`. Mint a key with
@@ -55,7 +62,7 @@ You will be asked, in this order:
 
 1. chezmoi questions: hostname, display scale (1 for 1080p/768p, 2 for HiDPI), Wi-Fi quirk (`none`/`broadcom`), Cursor yes/no, legacy docker-group prompt (answer no; podman is rootless), role.
 2. Headscale pre-auth key (paste; leave empty for browser login).
-3. Vaultwarden master password (rbw login + unlock; 2FA code if enabled).
+3. Vaultwarden master password (rbw login + unlock), then the 6-digit TOTP code. rbw cannot do WebAuthn — see §0.
 4. sudo password once at the start.
 
 - [ ] Script ends with the "Bootstrap finished" banner.
