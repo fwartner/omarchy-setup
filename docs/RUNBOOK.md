@@ -173,6 +173,17 @@ backend will not authorise it. Neither indicates a wrong secret.
 If nightly backups show intermittent failures, this is why. Open a ticket with Hetzner
 referencing the `HostId` from the error body rather than rotating credentials.
 
+## Bootstrap failures seen in the field
+
+**`rbw unlock: failed to read password from pinentry: pinentry cancelled`** at step 5/9.
+Nothing was cancelled -- the configured pinentry binary did not exist. pinentry is now
+installed in step 1/9 alongside rbw; before that it sat in `packages/pacman.txt`, which is
+step 6/9, one step too late to unlock the vault. If it recurs on an existing machine:
+`sudo pacman -S --needed pinentry` and re-run `bootstrap.sh`, which is idempotent.
+
+**`rbw login: unsupported two factor methods: WebAuthn`** at step 5/9. See §0 -- the account
+needs Authenticator (TOTP) enabled alongside WebAuthn, because no CLI can satisfy WebAuthn.
+
 ## Rollback
 
 - Omarchy update broke something: reboot, choose the previous Btrfs snapshot in the boot menu.

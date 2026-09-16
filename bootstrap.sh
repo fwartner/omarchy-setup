@@ -40,8 +40,12 @@ step "0/9 sudo keep-alive"
 sudo -v
 ( while true; do sudo -n true; sleep 50; kill -0 "$$" || exit; done ) 2>/dev/null &
 
-step "1/9 base tooling (chezmoi, rbw, git, jq)"
-sudo omarchy-pkg-add chezmoi rbw git jq fzf ripgrep fd
+step "1/9 base tooling (chezmoi, rbw, pinentry, git, jq)"
+# pinentry belongs here, not in packages/pacman.txt: step 5/9 unlocks the vault
+# and rbw drives pinentry to ask for the master password, but packages are not
+# installed until step 6/9. Without it rbw fails with "pinentry cancelled",
+# which reads like the user hit escape rather than a missing binary.
+sudo omarchy-pkg-add chezmoi rbw git jq fzf ripgrep fd pinentry
 
 step "2/9 clone/update repo"
 if [ -d "$REPO_DIR/.git" ]; then
