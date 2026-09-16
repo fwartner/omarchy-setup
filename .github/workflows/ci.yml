@@ -62,9 +62,3 @@ jobs:
           done
           chezmoi --config "$CM_CONFIG" --source "$PWD/home" managed >/dev/null
 
-  kustomize:
-    name: kustomize build vaultwarden
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: kubectl kustomize infra/vaultwarden > /tmp/out.yaml && grep -c '^kind:' /tmp/out.yaml

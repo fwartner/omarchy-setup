@@ -9,7 +9,7 @@ curl -fsSL https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstr
 - `docs/MASTER-PLAN.md` — architecture, decisions, phases
 - `docs/RUNBOOK.md` — per-laptop checklist + list of vault items
 - `docs/INVENTORY.md` — machines
-- `infra/vaultwarden/` — Phase 0: Vaultwarden on the cluster
+- Phase 0 (Vaultwarden on the cluster) lives in `pixelandprocess-gitops/apps/internal/vaultwarden`
 - `bootstrap.sh`, `scripts/` — the automation
 - `home/` — chezmoi source dir (`chezmoi init --source ./home`)
 - `packages/` — pacman + AUR lists
