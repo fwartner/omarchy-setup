@@ -15,22 +15,36 @@ check "firewall active"                "sudo -n ufw status 2>/dev/null | grep -q
 echo "Mesh"
 check "tailscaled running"             "systemctl is-active tailscaled"
 check "tailscale logged in"            "tailscale status --json | jq -e '.BackendState==\"Running\"'"
-check "llm.intern reachable"           "curl -fsS --max-time 5 https://llm.intern.example.com -o /dev/null || curl -fsS --max-time 5 http://llm.intern.example.com -o /dev/null"
-check "notes.intern reachable"         "curl -fsS --max-time 5 https://notes.intern.example.com -o /dev/null"
-check "Home Assistant reachable"       "curl -fsS --max-time 5 \"\$(chezmoi data | jq -r .ha_url)\" -o /dev/null"
+# Read URLs from chezmoi data so they match the actual fleet config, not the template example.com.
+LLM_URL="$(chezmoi data 2>/dev/null | jq -r '.freellm_url // empty')"
+AFFINE_URL="$(chezmoi data 2>/dev/null | jq -r '.affine_url // empty')"
+if [ -n "$LLM_URL" ]; then
+  check "LLM endpoint reachable"       "curl -fsS --max-time 5 \"$LLM_URL\" -o /dev/null"
+else
+  bad "freellm_url not set in chezmoi data"
+fi
+if [ -n "$AFFINE_URL" ]; then
+  check "AFFiNE (notes) reachable"     "curl -fsS --max-time 5 \"$AFFINE_URL\" -o /dev/null"
+else
+  bad "affine_url not set in chezmoi data"
+fi
+check "Home Assistant reachable"       "curl -fsS --max-time 5 \"$(chezmoi data | jq -r .ha_url)\" -o /dev/null"
 
 echo "Secrets & dotfiles"
 check "rbw unlocked"                   "rbw unlocked"
-check "chezmoi clean"                  "test -z \"\$(chezmoi status)\""
+check "chezmoi clean"                  "test -z \"$(chezmoi status)\""
 check "ssh config rendered"            "test -s ~/.ssh/config"
 
 echo "Toolchain"
-for b in git gh podman kubectl helm mise node bun go python php composer code claude codex opencode herdr starship atuin yazi tv jj k9s stern argocd xh nvim wt; do
+for b in git gh podman kubectl helm mise node bun go python php composer code claude codex opencode hermes herdr starship atuin yazi tv jj k9s stern argocd xh nvim wt tunnel; do
   check "$b" "command -v $b"
 done
 check "gh authenticated"               "gh auth status"
 check "kubectl cluster reachable"      "kubectl get --raw /version"
 check "podman works (rootless)"        "podman info"
+
+echo "Tunnels"
+check "burrow configured"              "test -f ~/.config/burrow/config.toml || test -f ~/.burrow.toml"
 
 echo "Sync & backup"
 check "syncthing user service"         "systemctl --user is-active syncthing"
