@@ -29,9 +29,11 @@ case "${1:-}" in
       # shared, untracked env files
       for f in .env .env.local; do [ -f "$repo_root/$f" ] && cp -n "$repo_root/$f" "$path/$f"; done
     fi
+    # Verified against herdr 0.9.0: the subcommand is `create`, not `new`; the
+    # name is --label rather than positional; and there is no `--` form to launch
+    # a command, so the agent is started in the worktree either way.
     if command -v herdr >/dev/null && [ -n "${HERDR_SESSION:-}${HERDR:-}" ]; then
-      herdr workspace new "$repo/$task" --cwd "$path" -- "$agent" 2>/dev/null || (cd "$path" && exec "$agent")
-    else
-      cd "$path" && exec "$agent"
-    fi ;;
+      herdr workspace create --cwd "$path" --label "$repo/$task" --focus >/dev/null 2>&1 || true
+    fi
+    cd "$path" && exec "$agent" ;;
 esac
