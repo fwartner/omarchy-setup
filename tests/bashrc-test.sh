@@ -34,7 +34,8 @@ for n in .. ... .... la nr gst gco gp gpl gd gl p bashconfig bashcustom \
          art a art:migrate art:fresh art:tinker art:cache art:clear cda sail \
          newlaravel laravel-serve artisan \
          d dps dpsa di dprune dc dco dcup dcdown dclogs dcexec dexec dstopall dclean \
-         reload reload-custom bashconfig-check mkd extract tre json weather ports killport notify; do
+         reload reload-custom bashconfig-check mkd extract tre json weather ports killport notify \
+         tunnel; do
   have "$n"
 done
 
