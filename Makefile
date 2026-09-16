@@ -14,6 +14,7 @@ test:            ## run the script self-checks
 	@./tests/skills-test.sh
 	@./tests/bootstrap-mode-test.sh
 	@./tests/self-update-test.sh
+	@./tests/chezmoi-init-test.sh
 	@# `cmd && test || echo skipped` reported a FAILING lua test as "skipped (no
 	@# lua)" and exited 0. That is how a bindings.lua calling a helper Omarchy 4.x
 	@# does not have reached a laptop. If lua is here, the test must be able to fail.
