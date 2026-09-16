@@ -49,9 +49,13 @@ security key before you touch a laptop.
 
 ## Setup
 
-**1. Fork and edit the fleet constants** in `home/.chezmoi.toml.tmpl`. They are
-all `example.com` and none of them resolve. The prompts above that block are the
-things that genuinely differ per machine; the constants are shared by the fleet.
+**1. Fork it.** Nothing needs editing first. `chezmoi init` asks for everything
+on the first run of `bootstrap.sh` — the per-machine values (hostname, display
+scale, Wi-Fi quirk, role) and the fleet-wide ones (vault, mesh, git identity,
+and the optional LLM/notes/Home Assistant URLs). Every one is a
+`promptStringOnce`, so the answers are stored in
+`~/.config/chezmoi/chezmoi.toml` and a later re-init reuses them rather than
+asking again. `vault_url` is the only one bootstrap cannot continue without.
 
 **2. Create the vault items.** Minimum for a useful machine:
 
@@ -127,7 +131,7 @@ machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
 ## Things that will bite you
 
-Seven lessons this repo paid for, all encoded in the scripts:
+Eight lessons this repo paid for, all encoded in the scripts:
 
 - **Do not duplicate or collide with Omarchy's own packages.** A duplicate is
   noise; a *conflict* aborts the entire pacman transaction mid-bootstrap. Check
@@ -156,6 +160,13 @@ Seven lessons this repo paid for, all encoded in the scripts:
   `settings.json`, so this is routine, not rare -- it parked a laptop at step
   7/9. Every unattended apply passes `--force`, the repo being the source of
   truth for fleet config, and `make lint` fails if one stops doing so.
+- **A value hardcoded in `.chezmoi.toml.tmpl` is a value a re-init destroys.**
+  The fleet URLs used to be constants in that file. Genericizing this repo for
+  release replaced them with `example.com`, and the first `chezmoi init` on an
+  already-configured laptop wrote those defaults over its nine real URLs — the
+  vault, the mesh and everything rendered from them, gone in one step, because
+  the machine predated the genericization and held them nowhere else. They are
+  all `promptStringOnce` now, which never overwrites a stored answer.
 - **`rbw` runs a background agent with no controlling terminal.** A terminal
   pinentry cannot work there — it reports "pinentry cancelled", which looks like
   you pressed escape. It needs a GUI pinentry. The agent also caches its config,

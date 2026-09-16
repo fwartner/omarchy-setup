@@ -7,12 +7,29 @@
 {{- $sudoless_docker := promptBoolOnce . "sudoless_docker" "Legacy docker group opt-in (podman is rootless; answer false)" false -}}
 {{- $role := promptChoiceOnce . "role" "Machine role (daily = full desktop, spare = lean agent runner)" (list "daily" "spare") -}}
 
-# ---- fleet-wide constants ----
-#
-# EDIT THESE BEFORE FIRST USE. Everything below is example.com and will not
-# resolve. They are constants rather than prompts because every machine in a
-# fleet shares them -- you set them once, here, and they are the same on all of
-# them. The prompts above are the things that genuinely differ per laptop.
+{{- /* Fleet-wide. Asked once, then stored, exactly like the per-machine values
+       above. They were hardcoded here until a `chezmoi init` on an already
+       configured laptop regenerated its config from this file and replaced
+       nine real URLs with the example.com defaults -- the machine had been
+       set up before this repo was genericized for release, so its real values
+       existed only in ~/.config/chezmoi/chezmoi.toml and nowhere else.
+       promptStringOnce never overwrites a stored answer, which is the whole
+       property that was missing. The defaults keep this readable as a
+       template; a fresh install is asked for each one. */ -}}
+{{- $vault_url := promptStringOnce . "vault_url" "Vaultwarden URL (bootstrap cannot continue without it)" "https://vault.example.com" -}}
+{{- $vault_email := promptStringOnce . "vault_email" "Vault account email" "you@example.com" -}}
+{{- $headscale_url := promptStringOnce . "headscale_url" "Headscale URL (empty to skip the mesh)" "https://headscale.example.com" -}}
+{{- $git_name := promptStringOnce . "git_name" "git user.name" "Your Name" -}}
+{{- $git_email := promptStringOnce . "git_email" "git user.email" "you@example.com" -}}
+{{- $github_user := promptStringOnce . "github_user" "GitHub username" "your-github-user" -}}
+{{- $freellm_url := promptStringOnce . "freellm_url" "LLM gateway URL (optional)" "https://llm.example.com" -}}
+{{- $affine_url := promptStringOnce . "affine_url" "AFFiNE URL (optional)" "https://notes.example.com" -}}
+{{- $ha_url := promptStringOnce . "ha_url" "Home Assistant URL (optional)" "http://homeassistant.example.com:8123" -}}
+
+# Everything here is answered once and then stored. Nothing in this file is a
+# hardcoded value a re-init can overwrite: that is what cost a laptop its whole
+# configuration. To change one later, edit ~/.config/chezmoi/chezmoi.toml on
+# the machine, or `chezmoi init` after deleting just that line.
 #
 # vault_url is the only one bootstrap cannot continue without: it is where rbw
 # looks for the secrets the chezmoi templates render from.
@@ -24,15 +41,15 @@
     sudoless_docker = {{ $sudoless_docker }}
     role            = {{ $role | quote }}
 
-    headscale_url   = "https://headscale.example.com"          # from infra-gitops apps/internal/headscale
-    vault_url       = "https://vault.intern.example.com"    # Vaultwarden (infra-gitops apps/internal/vaultwarden)
-    vault_email     = "you@example.com"
-    git_name        = "Your Name"
-    git_email       = "you@example.com"
-    github_user     = "your-github-user"
-    freellm_url     = "https://llm.intern.example.com"
-    affine_url      = "https://notes.intern.example.com"
-    ha_url          = "http://homeassistant.ts.example.com:8123"   # MagicDNS name (baseDomain ts.example.com); mDNS does not cross the mesh
+    headscale_url   = {{ $headscale_url | quote }}
+    vault_url       = {{ $vault_url | quote }}
+    vault_email     = {{ $vault_email | quote }}
+    git_name        = {{ $git_name | quote }}
+    git_email       = {{ $git_email | quote }}
+    github_user     = {{ $github_user | quote }}
+    freellm_url     = {{ $freellm_url | quote }}
+    affine_url      = {{ $affine_url | quote }}
+    ha_url          = {{ $ha_url | quote }}
 
 [edit]
     command = "nvim"
