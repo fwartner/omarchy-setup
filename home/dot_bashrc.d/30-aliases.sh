@@ -33,3 +33,8 @@ command -v htop      >/dev/null 2>&1 && alias ht='htop'
 command -v prettyping >/dev/null 2>&1 && alias ping='prettyping'
 command -v gh        >/dev/null 2>&1 && { alias ghpr='gh pr list'; alias ghprc='gh pr create'; }
 command -v multipass >/dev/null 2>&1 && alias mp='multipass'
+
+# A sourced file returns the status of its last command. The line above is a
+# conditional, so on a machine without multipass this file would return non-zero
+# and anything sourcing it with `set -e` would abort.
+:
