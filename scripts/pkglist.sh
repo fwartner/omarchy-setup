@@ -16,7 +16,9 @@ MANIFEST_DIR="${MANIFEST_DIR:-$SELF_DIR/../packages}"
 # GUI-heavy extras, skipped on spare machines (4 GB Gemini Lake etc.).
 # obsidian is not here: omarchy-base installs it on every machine, so skipping it
 # in our manifest would not keep it off a spare laptop.
-SPARE_SKIP='^(dbeaver|telegram-desktop|bitwarden|bruno|harlequin|posting)$'
+# jre-openjdk rides along with dbeaver -- it is the only thing that needs it -- so
+# a spare machine gets neither rather than a JRE with nothing to run.
+SPARE_SKIP='^(dbeaver|jre-openjdk|telegram-desktop|bitwarden|bruno|harlequin|posting)$'
 
 role() {
   [ -n "${ROLE:-}" ] && { printf '%s\n' "$ROLE"; return; }
