@@ -1,5 +1,6 @@
-# Copy into a project as docker-compose.yml (or `include:` it). Local services for Laravel dev.
-# `docker compose up -d` then point .env at 127.0.0.1 with the ports below.
+# Copy into a project as compose.yml (or `include:` it). Local services for Laravel dev.
+# `podman-compose up -d` then point .env at 127.0.0.1 with the ports below.
+# `docker compose up -d` also works: podman-docker provides the docker command.
 name: ${COMPOSE_PROJECT_NAME:-laravel-dev}
 services:
   postgres:

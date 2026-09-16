@@ -20,7 +20,7 @@ Goals
 
 Non-goals
 
-- The laptops do not become nodes of the shared Kubernetes cluster. They are clients only (kubectl/helm). Laptops close lids, lose Wi-Fi and get reinstalled; a control plane should never care about them.
+- The laptops do not become nodes of the shared Kubernetes cluster. They are clients only (kubectl/helm), though they hold cluster-admin: they are the machines the cluster is operated from. Laptops close lids, lose Wi-Fi and get reinstalled; a control plane should never care about them.
 - Hermes stays out of scope for the laptops (it lands on the Mac mini). The laptops only get the Hermes CLI/Telegram-side tooling if you want to poke at it.
 - No Pixel & Process work on these machines. The Mac keeps Forge/Herd, Lexware, client data. The split is on purpose: fewer secrets on machines that travel.
 
@@ -70,7 +70,7 @@ Layers, bottom to top:
 | Editors | VS Code (Install > Editor), Cursor optional, Neovim stays as default `$EDITOR` for terminal work | VS Code settings + extension list come from the repo; Omarchy theme-matches VS Code and Cursor. |
 | Terminal | Ghostty + Starship on bash, **herdr** as agent-aware multiplexer, atuin history, yazi, television | Chosen in `docs/TOOLING.md`; herdr shows per-pane agent state and attaches remotely over the mesh. |
 | Agents | Claude Code, Codex CLI, OpenCode (→ FreeLLM), Hermes CLI (client), `gh`; MCP: AFFiNE, Home Assistant, Context7, Sentry, Linear, GitHub, Playwright; `wt` worktree-per-task | Same setup as on the Mac. Omarchy's default coding-agent picker points to Claude Code. No local models. |
-| Containers | Docker (rootful; opt into `Setup > Security > Sudoless Docker` only on machines you trust) | Local dev DBs via Install > Development > Docker DB. |
+| Containers | Podman, rootless by default, with `podman-docker` providing the `docker` command | Nothing to opt into and no daemon running as root on a machine that travels. Compose files work unchanged through `podman-compose`. |
 | Sync | Syncthing for `~/Projects/claude-obsidian` (Obsidian vault) and `~/Sync`; git for everything else | Vault also has a git remote as backup; Syncthing gives instant multi-laptop sync without a cloud. |
 | Backups | restic → Hetzner Object Storage (`nbg1`), own bucket and own key pair, nightly systemd timer, `~/Projects` + `~/.config` excluded caches | Laptops are disposable only if backups are boring. Separate bucket and credentials from `pp-cluster-backups` so a stolen laptop key is not also a key to customer database backups. |
 
@@ -141,7 +141,7 @@ Layers, bottom to top:
 | `gdk_scale` | `1` or `2` | `~/.config/hypr/monitors.lua` (older 1080p panels want 1) |
 | `wifi_driver` | `""`, `broadcom` | installs `broadcom-wl-dkms` |
 | `install_cursor` | `true/false` | Install > Editor Cursor |
-| `sudoless_docker` | `false` | opt-in per machine |
+| `sudoless_docker` | `false` | legacy; podman is rootless so it is a no-op |
 | `role` | `daily`, `spare` | spare machines skip Syncthing folders that are large |
 
 All are asked once by `.chezmoi.toml.tmpl` on first `chezmoi init` and stored in `~/.config/chezmoi/chezmoi.toml`.

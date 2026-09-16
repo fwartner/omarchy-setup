@@ -50,8 +50,8 @@ Decided 2026-09-16 over four rounds. Versions are what installs today (Arch `ext
 ## Laravel / PHP / JS stack (full)
 
 - `omarchy install dev-env php laravel node bun go python` — PHP + composer + xdebug from pacman, everything else via **mise** (`packages/mise.toml`: node lts, bun, go, python 3.13, plus `herdr` fallback if AUR lags).
-- Laravel installer via `composer global require laravel/installer`; Herd is macOS-only, so local sites run with `php artisan serve` or `docker compose` — templates in `templates/docker/` (postgres 17, mysql 8.4, valkey, mailpit, minio).
-- Omarchy `Install > Development > Docker DB` covers the one-off case.
+- Laravel installer via `composer global require laravel/installer`; Herd is macOS-only, so local sites run with `php artisan serve` or `podman-compose` — templates in `templates/containers/` (postgres 17, mysql 8.4, valkey, mailpit, minio).
+- Omarchy's `Install > Development > Docker DB` (`omarchy-install-docker-dbs`) is **not** used here: it installs Docker, which would put a rootful daemon back on the machine. Use the compose templates instead.
 
 ## Git workflow
 
@@ -88,7 +88,7 @@ sentry-cli (AUR `sentry-cli-bin` 2.31.0, token from vault item `sentry-token` �
 
 ## Base platform versions (2026-09-16)
 
-Omarchy 4.0.4 · Hyprland (Lua config) · Neovim 0.12.5 · chezmoi 2.72.2 · rbw 1.15.0 · mise 2026.9.9 · Tailscale 1.102.4 · Docker 29.8.0 · Syncthing 2.1.5 · restic 0.19.1.
+Omarchy 4.0.4 · Hyprland (Lua config) · Neovim 0.12.5 · chezmoi 2.72.2 · rbw 1.15.0 · mise 2026.9.9 · Tailscale 1.102.4 · Podman 6.1.2 (rootless) · Syncthing 2.1.5 · restic 0.19.1.
 
 ## Backlog (not in bootstrap yet)
 

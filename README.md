@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstr
 - `docs/RUNBOOK.md` — per-laptop checklist + list of vault items
 - `docs/INVENTORY.md` — the two laptops, per-model quirks
 - `docs/TOOLING.md` — curated CLIs/TUIs/apps with current versions
-- `templates/docker/` — compose file for Laravel dev services
+- `templates/containers/` — compose file for Laravel dev services (podman-compose)
 - `infra/vaultwarden/` — Phase 0: Vaultwarden on the cluster
 - `bootstrap.sh`, `scripts/` — the automation
 - `home/` — chezmoi source dir (`chezmoi init --source ./home`)

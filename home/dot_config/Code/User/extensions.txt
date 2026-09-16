@@ -8,6 +8,7 @@ bmewburn.vscode-intelephense-client
 xdebug.php-debug
 Vue.volar
 bradlc.vscode-tailwindcss
+# Talks to the podman socket enabled by run_once (podman.socket speaks the Docker API).
 ms-azuretools.vscode-docker
 ms-kubernetes-tools.vscode-kubernetes-tools
 hashicorp.terraform

@@ -46,9 +46,12 @@ gitleaks
 git-absorb
 git-branchless
 # --- dev
-docker
-docker-compose
-docker-buildx
+podman
+podman-compose
+# Provides the `docker` command as a podman alias, so compose files, CI
+# snippets and muscle memory keep working unchanged.
+podman-docker
+buildah
 mise
 shellcheck
 xh
@@ -67,7 +70,7 @@ krew
 hcloud
 opentofu
 terraform
-awscli
+aws-cli-v2
 logcli
 # --- mesh, sync, backup
 tailscale
@@ -84,7 +87,6 @@ bandwhich
 dog
 # --- gui
 obsidian
-localsend
 bitwarden
 telegram-desktop
 dbeaver

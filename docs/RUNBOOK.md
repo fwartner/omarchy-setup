@@ -48,7 +48,7 @@ curl -fsSL https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstr
 
 You will be asked, in this order:
 
-1. chezmoi questions: hostname, display scale (1 for 1080p/768p, 2 for HiDPI), Wi-Fi quirk (`none`/`broadcom`), Cursor yes/no, sudoless docker yes/no, role.
+1. chezmoi questions: hostname, display scale (1 for 1080p/768p, 2 for HiDPI), Wi-Fi quirk (`none`/`broadcom`), Cursor yes/no, legacy docker-group prompt (answer no; podman is rootless), role.
 2. Headscale pre-auth key (paste; leave empty for browser login).
 3. Vaultwarden master password (rbw login + unlock; 2FA code if enabled).
 4. sudo password once at the start.
@@ -65,13 +65,13 @@ You will be asked, in this order:
 
 ## 5. Reboot and verify (5 min)
 
-- [ ] Reboot (Hyprland overrides, docker group, hostname).
+- [ ] Reboot (Hyprland overrides, hostname).
 - [ ] `~/.local/share/omarchy-setup/scripts/verify.sh` → all green. Typical first-run reds: kubectl (kubeconfig item missing). Home Assistant is reached at `http://homeassistant.ts.pixelandprocess.de:8123` — the MagicDNS name, because mDNS does not cross the mesh.
 - [ ] Open VS Code from the Omarchy menu, theme matches Omarchy, Claude Code extension logged in.
 - [ ] `herdr` starts, sidebar shows a `claude` pane state; `wt test-task` in any repo creates a worktree and opens Claude in it (then `wt rm test-task`).
 - [ ] `atuin search`, `y` (yazi), `tv`, `gh dash`, `k9s` (read-only) all open.
 - [ ] `proj` opens the fuzzy switcher; `clone fwartner/<repo>` works.
-- [ ] `kubectl get nodes` returns the cluster. Writes must fail: `kubectl auth can-i delete pods` → `no`.
+- [ ] `kubectl get nodes` returns the cluster, and `kubectl auth can-i '*' '*' -A` → `yes` (the fleet holds cluster-admin).
 - [ ] Obsidian opens `~/Projects/claude-obsidian` and shows the `hermes/` folder synced from the Mac.
 - [ ] `systemctl --user list-timers` shows `restic-backup.timer`. Run once by hand: `systemctl --user start restic-backup.service`, then `restic snapshots`.
 
@@ -111,7 +111,7 @@ Quarterly
 | `github-token-laptops` | Login | gh auth | password = fine-grained PAT (repo, read:org, workflow) |
 | `affine-mcp` | Login | Claude MCP | password = `aff_mcp_v1.` token, custom field `url` = `https://notes.intern.pixelandprocess.de/api/workspaces/<workspace-id>/mcp` |
 | `homeassistant-mcp` | Login | Claude MCP | password = long-lived token, custom field `url` = `http://<ha-tailscale-name>:8123` |
-| `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-ro` (ServiceAccount `laptops`, ClusterRole `view` + node read; no Secrets, no writes) |
+| `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-admin` (ServiceAccount `laptops`, **cluster-admin**) |
 | `restic-laptops` | Login | restic timer | password = repo password, custom fields `repository`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
 | `hetzner-api` | Login | nothing — Mac convenience only | password = Hetzner Cloud API token |
 
@@ -161,4 +161,6 @@ referencing the `HostId` from the error body rather than rotating credentials.
 
 - Omarchy update broke something: reboot, choose the previous Btrfs snapshot in the boot menu.
 - Dotfiles broke something: `chezmoi apply --dry-run --verbose` shows the diff; `omarchy reinstall configs` restores Omarchy defaults, then fix the repo and `chezmoi apply`.
-- Laptop lost: revoke `github-token-laptops` first (it is currently an org-wide classic PAT), then `headscale nodes delete`, rotate `ssh-laptops`, revoke the HA/AFFiNE tokens, and rotate the Hetzner S3 key pair in `restic-laptops`. `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.
+- Laptop lost: this is now a **cluster-admin credential loss**, so it comes first. Delete the token Secret and let it reissue, which invalidates every distributed kubeconfig at once:
+  `kubectl -n kube-system delete secret laptops-token` then re-run `scripts/mac/` kubeconfig generation and update `kubeconfig-shared`.
+  Then revoke `github-token-laptops` (an org-wide classic PAT), `headscale nodes delete`, rotate `ssh-laptops`, revoke the HA/AFFiNE tokens, and rotate the Hetzner S3 key pair in `restic-laptops`. `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.

@@ -25,12 +25,12 @@ check "chezmoi clean"                  "test -z \"\$(chezmoi status)\""
 check "ssh config rendered"            "test -s ~/.ssh/config"
 
 echo "Toolchain"
-for b in git gh docker kubectl helm mise node bun go python php composer code claude codex opencode herdr starship atuin yazi tv jj k9s stern argocd xh nvim wt; do
+for b in git gh podman kubectl helm mise node bun go python php composer code claude codex opencode herdr starship atuin yazi tv jj k9s stern argocd xh nvim wt; do
   check "$b" "command -v $b"
 done
 check "gh authenticated"               "gh auth status"
 check "kubectl cluster reachable"      "kubectl get --raw /version"
-check "docker daemon"                  "docker info"
+check "podman works (rootless)"        "podman info"
 
 echo "Sync & backup"
 check "syncthing user service"         "systemctl --user is-active syncthing"

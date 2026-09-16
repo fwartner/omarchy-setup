@@ -12,8 +12,9 @@ fi
 
 if ! command -v tailscale >/dev/null 2>&1; then
   # Omarchy's own installer adds the bar panel; fall back to plain package.
-  omarchy-install-service tailscale 2>/dev/null \
-    || omarchy install service tailscale 2>/dev/null \
+  # One binary per service in omacom/omarchy bin/, not a command taking an argument.
+  omarchy-install-service-tailscale 2>/dev/null \
+    || omarchy install service-tailscale 2>/dev/null \
     || sudo omarchy-pkg-add tailscale
 fi
 sudo systemctl enable --now tailscaled
