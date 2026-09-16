@@ -85,6 +85,8 @@ Layers, bottom to top:
 
 **Omarchy stable channel, never `pacman -Syu`.** Omarchy takes a Btrfs snapshot before updates and blocks direct pacman upgrades. Keep that. Custom packages go through `omarchy-pkg-add` (pacman) and `yay -S` (AUR) so they get updated by `omarchy update` too.
 
+**Keybindings stay Omarchy default.** No `bindings.lua`. Every laptop answers to the same keys as a stock Omarchy install and as the official documentation, which is the whole point of interchangeable machines — muscle memory has to survive picking up a different laptop, and it has to survive an Omarchy release changing a default out from under a custom override. Shell-level shortcuts (`proj`, `clone`) stay, because they are commands you type, not keys the compositor intercepts.
+
 **Don't fight Omarchy's config ownership.** `/usr/share/omarchy` is pacman-owned and overwritten. Everything you own lives under `~/.config` and is loaded by `~/.config/hypr/hyprland.lua` as overrides. chezmoi manages exactly those files and nothing below `/usr`. A `post-update` hook re-runs `chezmoi apply` so an Omarchy config migration never leaves you with defaults.
 
 **VS Code as main editor, Neovim as `$EDITOR`.** Install via Omarchy's menu so theme sync works; settings and extension list come from chezmoi. Cursor is in the same menu if you want it on some machines (`.chezmoi.toml.tmpl` has a flag).
@@ -183,7 +185,7 @@ omarchy-setup/
 └── home/                        chezmoi source directory
     ├── .chezmoi.toml.tmpl       per-machine prompts
     ├── dot_bashrc.d/            shell snippets (sourced by ~/.bashrc)
-    ├── dot_config/hypr/         monitors.lua, bindings.lua overrides
+    ├── dot_config/hypr/         monitors.lua (display scale only; keybindings stay Omarchy default)
     ├── dot_config/omarchy/hooks/post-update.d/   re-apply chezmoi
     ├── dot_config/Code/User/    settings.json.tmpl, extensions.txt
     ├── dot_config/mise/config.toml
