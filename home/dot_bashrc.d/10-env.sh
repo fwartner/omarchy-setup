@@ -33,3 +33,9 @@ y() {
 
 # cheat.sh
 cht() { curl -s "https://cht.sh/$*"; }
+
+# Ported from the Mac's ~/.zsh.d/exports.zsh. Herd, NVM-under-Herd, Fastlane and
+# the Antigravity PATH are macOS-only and deliberately absent.
+[ -f "$HOME/.env.local" ] && . "$HOME/.env.local"
+export BAT_THEME="${BAT_THEME:-base16}"
+export DIRENV_LOG_FORMAT=""
