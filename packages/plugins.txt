@@ -1,0 +1,22 @@
+# Omarchy shell plugins, installed with `omarchy plugin add <url> --enable --yes`.
+#
+# One git URL per line. Blank lines and # comments ignored.
+#
+# Resolve a plugin's URL from its catalog id rather than guessing from the id:
+#   curl -s https://plugins.omarchy.org/catalog.json \
+#     | jq -r '.[] | select(.id=="<id>") | .repo'
+# The repo name rarely matches the id -- dev.reuk.ports lives at
+# RohitKaushal7/omarchy-ports -- so a guess installs somebody else's plugin.
+
+# Suspend behaviour that follows AC vs battery.
+https://github.com/aserper/omarchy-power-aware-idle.git
+# Periodic tidying of downloads and caches.
+https://github.com/tcballard/omarchy-plugin-tidyup.git
+# Listening ports in the menu.
+https://github.com/RohitKaushal7/omarchy-ports.git
+# Diagnoses external displays and docks.
+https://github.com/Kb2uka/omarchy-dock-doctor.git
+# Herdr session state in the bar.
+https://github.com/eszanon/omarchy-herdr.git
+# Manage coding-agent skills.
+https://github.com/oliwier-xiao/agent-skills-manager.git

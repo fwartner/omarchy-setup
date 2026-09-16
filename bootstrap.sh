@@ -141,6 +141,7 @@ SCRUBBED_ORIGIN="$(printf '%s' "$CURRENT_ORIGIN" | sed -E 's#(https://)[^@/]*@#\
 ./scripts/kube-setup.sh
 ./scripts/sync-setup.sh
 ./scripts/repo-sync.sh || true
+./scripts/plugins-setup.sh || true
 
 step "8b/9 automatic updates"
 # The unit files are chezmoi-managed and landed in step 7; enabling them is the
