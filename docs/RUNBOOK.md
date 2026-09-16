@@ -113,8 +113,17 @@ Quarterly
 | `homeassistant-mcp` | Login | Claude MCP | password = long-lived token, custom field `url` = `http://<ha-tailscale-name>:8123` |
 | `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-ro` (ServiceAccount `laptops`, ClusterRole `view` + node read; no Secrets, no writes) |
 | `restic-laptops` | Login | restic timer | password = repo password, custom fields `repository`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
+| `hetzner-api` | Login | nothing — Mac convenience only | password = Hetzner Cloud API token |
 
 Generate the fleet SSH key once on the Mac: `ssh-keygen -t ed25519 -C laptops -f ~/Desktop/id_ed25519_laptops`, paste into the vault item, add the `.pub` to GitHub and to the Serverschrank's `authorized_keys`, then delete the local copies.
+
+`hetzner-api` is the odd one out: no bootstrap step and no script reads it, and it is not
+needed on a laptop at all. It is full read/write on `api.hetzner.cloud` — servers, volumes,
+networks, firewalls, load balancers, including deletion — so any laptop with `rbw` unlocked
+can destroy the cluster with it. It does **not** cover Object Storage (`/v1/object_storage`
+and `/v1/storage_boxes` both 404); buckets and S3 credentials live in the console and the
+S3 API. If the fleet ever grows past machines you personally carry, this item and
+`github-token-laptops` are the two to move into a vault account the laptops do not log into.
 
 Create the AFFiNE credential **inside the self-hosted instance** (`https://notes.intern.pixelandprocess.de` → Settings → Integrations → MCP Server), not through the button on affine.pro, which sends you to AFFiNE Cloud. A cloud-issued token fails against the self-hosted endpoint with a 401 that is byte-identical to the one you get for sending no credential at all, so there is nothing in the error to tell you which mistake you made. Transport is streamable HTTP; the endpoint is stateless and returns no `mcp-session-id`.
 
