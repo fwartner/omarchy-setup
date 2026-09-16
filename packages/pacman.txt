@@ -31,7 +31,10 @@ duf
 procs
 sd
 typos
-tealdeer
+# tealdeer is NOT here: it conflicts with `tldr`, which omarchy-base installs on
+# every machine, and pacman aborts the whole transaction rather than choosing.
+# The name-overlap check in this file's header cannot catch that -- the packages
+# have different names and only collide through `conflicts`/`provides`.
 glow
 zk
 # --- git workflow
@@ -84,4 +87,8 @@ dog
 # --- gui
 bitwarden
 telegram-desktop
+# dbeaver needs java-runtime>=21, which has six providers. Without naming one,
+# pacman stops and asks -- fatal in a bootstrap nobody is watching. Pinning the
+# JRE here makes the dependency unambiguous.
+jre-openjdk
 dbeaver
