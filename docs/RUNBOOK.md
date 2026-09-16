@@ -8,12 +8,17 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
 - [x] All vault items from §Secrets below exist — verified against live infrastructure, not just created: the SSH key round-trips to the key on GitHub, the kubeconfig lists 7 nodes, the AFFiNE token returns its tool list, Home Assistant answers `API running.`, and the restic repo took a real backup and restore.
 - [x] Headscale: `headscale users list` shows `florian`. Mint a key with
       `./scripts/mac/new-laptop-key.sh`, which writes it into vault item `headscale-preauth`.
+      **Keys last 24h** — re-run the script if the install slips to another day.
+      Note `headscale preauthkeys list` redacts keys (`hskey-auth-...***`, all entries an
+      identical 27 characters), so a listed value never matches the full one in the vault.
+      That is redaction, not a truncated or wrong key; check `acl_tags`, `reusable` and
+      `expiration` to confirm a key rather than comparing the string.
       There is no ACL policy: headscale runs `policy.mode: database` with no rows, which means
       allow-all inside the tailnet. `tag:laptop` is forced server-side from the pre-auth key and
       needs no `tagOwners` entry, so the tag is a label, not an access boundary. Writing a first
       policy would flip the whole tailnet to deny-by-default — a separate, deliberate change.
 - [x] Repo pushed: `github.com/fwartner/omarchy-setup` (private). The raw URL needs a token — it 404s without one — so the bootstrap command in §3 passes `Authorization: Bearer`.
-- [ ] USB stick with the current Omarchy ISO (ISO downloaded and SHA256-verified; **writing the stick is still manual**). `./scripts/mac/latest-iso.sh --download` reads
+- [x] USB stick with the current Omarchy ISO — written with balenaEtcher (which verifies its own write). `./scripts/mac/latest-iso.sh --download` reads
       the version, URL and SHA256 out of the release notes, fetches into `~/Downloads` and
       verifies; it exits non-zero on a mismatch and skips the download if the file is already
       correct. No version is pinned anywhere in this repo — Omarchy ships roughly weekly.
