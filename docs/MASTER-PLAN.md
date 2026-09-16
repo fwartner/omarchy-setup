@@ -109,7 +109,7 @@ Layers, bottom to top:
 
 - Install Omarchy (full disk, LUKS, keyboard `de`, user `florian`, hostname per inventory).
 - First boot: pick Claude Code as default agent, reboot into the desktop.
-- `curl -fsSL https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstrap.sh | bash` — this installs chezmoi + rbw, unlocks the vault, joins Headscale, installs packages, applies dotfiles, installs editors and dev envs.
+- Bootstrap: `bootstrap.sh` installs chezmoi + rbw, unlocks the vault, joins Headscale, installs packages, applies dotfiles, installs editors and dev envs. The repo is private, so both the download and the clone need a GitHub token — see `docs/RUNBOOK.md` §3 for the exact invocation. The token cannot come from the vault at that point, because rbw is configured from data that lives in this repo.
 - Run `scripts/verify.sh`, fix what fails, commit fixes. Expect two or three iterations on the pilot; that is what the pilot is for.
 
 ### Phase 2 — Fleet rollout (1 evening per laptop, mostly waiting)

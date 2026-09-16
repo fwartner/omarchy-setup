@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # bootstrap.sh — turn a fresh Omarchy 4.x install into a fleet workstation.
 #
-# Usage (on the laptop, as your normal user, after first login):
-#   curl -fsSL https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstrap.sh | bash
+# Usage (on the laptop, as your normal user, after first login). The repo is
+# private, so both the download and the clone need a token:
+#   read -rsp 'GitHub token: ' REPO_TOKEN; echo; export REPO_TOKEN
+#   curl -fsSL -H "Authorization: Bearer $REPO_TOKEN" \
+#     https://raw.githubusercontent.com/fwartner/omarchy-setup/main/bootstrap.sh | bash
 # or, with the repo already cloned:
 #   ./bootstrap.sh
 #
 # Idempotent: safe to re-run after `omarchy update`.
 # Environment overrides:
 #   REPO_URL        git URL of this repo (default: github.com/fwartner/omarchy-setup)
+#   REPO_TOKEN      GitHub token for the first clone (the repo is private)
 #   SKIP_HEADSCALE  set to 1 to skip mesh join
 #   SKIP_EDITORS    set to 1 to skip VS Code / Cursor install
 
@@ -43,7 +47,22 @@ step "2/9 clone/update repo"
 if [ -d "$REPO_DIR/.git" ]; then
   git -C "$REPO_DIR" pull --ff-only
 else
-  git clone "$REPO_URL" "$REPO_DIR"
+  # The repo is private and the vault cannot help yet: rbw is configured from
+  # data that lives in this repo, so the token for the very first clone has to
+  # be pasted here or passed in REPO_TOKEN. GIT_TERMINAL_PROMPT=0 makes the
+  # anonymous attempt fail fast instead of blocking on a username prompt.
+  if [ -z "${REPO_TOKEN:-}" ] \
+     && ! GIT_TERMINAL_PROMPT=0 git clone "$REPO_URL" "$REPO_DIR" 2>/dev/null; then
+    echo "Private repository: a GitHub token is needed for the first clone."
+    echo "Vault item github-token-laptops, or any token with Contents: read."
+    read -rsp "GitHub token: " REPO_TOKEN; echo
+  fi
+  if [ ! -d "$REPO_DIR/.git" ]; then
+    # "x-access-token" is a valid username for any GitHub token, so the real
+    # account name never has to be known here.
+    GIT_TERMINAL_PROMPT=0 git clone \
+      "${REPO_URL/https:\/\//https://x-access-token:${REPO_TOKEN}@}" "$REPO_DIR"
+  fi
 fi
 cd "$REPO_DIR"
 

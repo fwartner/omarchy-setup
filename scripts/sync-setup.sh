@@ -53,8 +53,15 @@ Environment=RESTIC_PASSWORD_FILE=%h/.config/restic/password
 # S3 credentials; written by sync-setup.sh from the vault item. Optional so the
 # unit still starts against a non-S3 repo (rest:, sftp:, local path).
 EnvironmentFile=-%h/.config/restic/env
-ExecStart=/bin/bash -c 'restic -r "$(cat %h/.config/restic/repository)" backup %h/Projects %h/.config %h/Sync %h/Documents --exclude-file=%h/.config/restic/excludes --tag laptop --host %H'
-ExecStartPost=/bin/bash -c 'restic -r "$(cat %h/.config/restic/repository)" forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune --host %H'
+# A backup can legitimately run for hours; without this systemd would kill it
+# at DefaultTimeoutStartSec.
+TimeoutStartSec=0
+# Hetzner's nbg1 object storage intermittently answers 403 AccessDenied from one
+# backend (see docs/RUNBOOK.md). restic treats 403 as fatal and does not retry it
+# itself, so a single bad request would fail the whole night. Retry the run.
+# No $VARIABLES in these lines: systemd expands $foo before bash ever sees it.
+ExecStart=/bin/bash -c 'for attempt in 1 2 3 4 5; do restic -r "$(cat %h/.config/restic/repository)" backup %h/Projects %h/.config %h/Sync %h/Documents --exclude-file=%h/.config/restic/excludes --tag laptop --host %H && exit 0; echo "restic backup failed; retrying in 120s"; sleep 120; done; echo "restic backup failed 5 times, giving up"; exit 1'
+ExecStartPost=/bin/bash -c 'for attempt in 1 2 3; do restic -r "$(cat %h/.config/restic/repository)" forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune --host %H && exit 0; sleep 120; done; exit 1'
 EOF
   cat > "$HOME/.config/systemd/user/restic-backup.timer" <<'EOF'
 [Unit]
@@ -79,7 +86,12 @@ EOF
     set +a
     export RESTIC_PASSWORD_FILE="$HOME/.config/restic/password"
     REPO="$(cat "$HOME/.config/restic/repository")"
-    restic -r "$REPO" snapshots >/dev/null 2>&1 || restic -r "$REPO" init || true
+    # Same 403 flakiness as the timer unit: retry rather than give up on one.
+    for _ in 1 2 3 4 5; do
+      restic -r "$REPO" snapshots >/dev/null 2>&1 && break
+      restic -r "$REPO" init >/dev/null 2>&1 && break
+      sleep 5
+    done
   )
   echo "restic timer enabled"
 else
