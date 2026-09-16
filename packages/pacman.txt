@@ -2,6 +2,9 @@
 # Omarchy's own install/omarchy-base.packages (150 entries) is installed on every
 # machine, so nothing from it is repeated here. Checked with:
 #   comm -12 <(./scripts/pkglist.sh pacman|sort -u) <(omarchy base+other packages)
+# Name equality is not enough on its own. tealdeer/tldr collide through
+# `conflicts`, and mise/mise-bin are the same tool packaged twice -- both abort
+# the entire transaction. Check for -bin and -git variants of every name too.
 # --- shell & terminal
 chezmoi
 rbw
@@ -52,7 +55,10 @@ podman-compose
 # transaction mid-bootstrap. 50-containers.sh aliases `docker` to podman instead,
 # which gets the same muscle memory with no package conflict.
 buildah
-mise
+# mise is NOT here: omarchy-base installs `mise-bin`, which declares a conflict
+# with the repo `mise`, so listing it aborts the whole pacman transaction.
+# Omarchy also owns mise's updates via omarchy-update-mise, which `omarchy
+# update` runs, so there is nothing for us to add.
 shellcheck
 xh
 pgcli
