@@ -23,6 +23,13 @@ jobs:
           git config --global user.name CI
           ./tests/repo-sync-test.sh
           ./tests/bashrc-test.sh
+      - name: plugin manifest is well formed
+        run: |
+          set -e
+          bad=$(sed -E 's/#.*//' packages/plugins.txt | awk 'NF' \
+            | grep -vE '^https://[A-Za-z0-9._/-]+\.git$' || true)
+          if [ -n "$bad" ]; then echo "malformed plugin URLs:"; echo "$bad"; exit 1; fi
+          echo "$(sed -E 's/#.*//' packages/plugins.txt | awk 'NF' | wc -l) plugin URLs OK"
       - name: repo manifest is well formed
         run: |
           set -e
