@@ -62,10 +62,13 @@ fi
 # --- packages declared by this repo -----------------------------------------
 step "package manifests"
 if have omarchy-pkg-add; then
-  mapfile -t PKGS < <(grep -vhE '^\s*(#|$)' "$REPO_DIR/packages/pacman.txt" 2>/dev/null)
+  # Same role filter as bootstrap, via the same script. Without this a spare
+  # machine had its GUI-heavy packages skipped at install and then quietly
+  # reinstalled by the first nightly update.
+  mapfile -t PKGS < <("$REPO_DIR/scripts/pkglist.sh" pacman)
   [ "${#PKGS[@]}" -gt 0 ] && sudo -n omarchy-pkg-add "${PKGS[@]}" 2>/dev/null \
     || echo "pacman manifest needs sudo; run ./scripts/update-all.sh by hand to reconcile"
-  mapfile -t AUR < <(grep -vhE '^\s*(#|$)' "$REPO_DIR/packages/aur.txt" 2>/dev/null)
+  mapfile -t AUR < <("$REPO_DIR/scripts/pkglist.sh" aur)
   [ "${#AUR[@]}" -gt 0 ] && yay -S --needed --noconfirm "${AUR[@]}" </dev/null || true
 else
   echo "omarchy-pkg-add not present; skipping"

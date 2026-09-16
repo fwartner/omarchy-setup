@@ -17,7 +17,7 @@ check "tailscaled running"             "systemctl is-active tailscaled"
 check "tailscale logged in"            "tailscale status --json | jq -e '.BackendState==\"Running\"'"
 check "llm.intern reachable"           "curl -fsS --max-time 5 https://llm.intern.pixelandprocess.de -o /dev/null || curl -fsS --max-time 5 http://llm.intern.pixelandprocess.de -o /dev/null"
 check "notes.intern reachable"         "curl -fsS --max-time 5 https://notes.intern.pixelandprocess.de -o /dev/null"
-check "Home Assistant reachable"       "curl -fsS --max-time 5 http://homeassistant.local:8123 -o /dev/null"
+check "Home Assistant reachable"       "curl -fsS --max-time 5 \"\$(chezmoi data | jq -r .ha_url)\" -o /dev/null"
 
 echo "Secrets & dotfiles"
 check "rbw unlocked"                   "rbw unlocked"
