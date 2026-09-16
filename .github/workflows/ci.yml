@@ -83,7 +83,7 @@ jobs:
         with:
           severity: warning
           scandir: .
-          ignore_paths: home/dot_bashrc.d/20-projects.sh.tmpl
+          ignore_paths: home/dot_bashrc.d/20-projects.sh.tmpl home/dot_bashrc.d/10-env.sh.tmpl
 
   chezmoi:
     name: chezmoi templates render
@@ -120,6 +120,7 @@ jobs:
             freellm_url = "https://llm.example"
             affine_url = "https://notes.example"
             ha_url = "http://ha.example"
+            sentry_url = "https://errors.example"
           EOF
           # templates that call rbw are skipped here; everything else must render
           for t in $(find home -name '*.tmpl' ! -path '*private_dot_ssh/*id_ed25519*' ! -name '.chezmoi.toml.tmpl'); do

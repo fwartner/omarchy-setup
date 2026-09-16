@@ -55,6 +55,7 @@ cat > "$CFG" <<'EOF'
     freellm_url     = "https://llm.real.invalid"
     affine_url      = "https://notes.real.invalid"
     ha_url          = "http://ha.real.invalid:8123"
+    sentry_url      = "https://errors.real.invalid"
 EOF
 
 # </dev/null is the point as much as the assertions: if any value were not a
@@ -79,7 +80,8 @@ for kv in \
   'github_user:"realperson"' \
   'freellm_url:"https://llm.real.invalid"' \
   'affine_url:"https://notes.real.invalid"' \
-  'ha_url:"http://ha.real.invalid:8123"'; do
+  'ha_url:"http://ha.real.invalid:8123"' \
+  'sentry_url:"https://errors.real.invalid"'; do
   key="${kv%%:*}"; want="${kv#*:}"
   got="$(chezmoi --config "$CFG" --source "$SOURCE_DIR" data 2>/dev/null \
     | jq -r --arg k "$key" '.[$k] | if type=="string" then "\"\(.)\"" else tostring end')"
