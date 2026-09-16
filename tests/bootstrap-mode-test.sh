@@ -28,6 +28,10 @@ MARKER="$TMP/home/.local/state/omarchy-setup-bootstrapped"
 
 # --- a checkout shaped like a bootstrapped machine's ------------------------
 git init -q --bare "$TMP/origin.git"
+# The runner's init.defaultBranch is master, so a bare repo's HEAD points at
+# refs/heads/master while the fixture only ever creates main -- the clone then
+# lands on an unborn branch with no upstream. Pin it rather than inherit it.
+git -C "$TMP/origin.git" symbolic-ref HEAD refs/heads/main
 git clone -q "$TMP/origin.git" "$TMP/repo" 2>/dev/null
 git -C "$TMP/repo" checkout -q -b main 2>/dev/null || true
 mkdir -p "$TMP/repo/scripts"

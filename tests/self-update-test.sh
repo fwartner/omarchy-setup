@@ -24,10 +24,13 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
 
-git init -q --bare "$TMP/origin.git"
 seed() {  # a fresh origin history and a clone of it
   rm -rf "$TMP/origin.git" "$TMP/clone" "$TMP/rewrite"
   git init -q --bare "$TMP/origin.git"
+  # The runner's init.defaultBranch is master, so a bare repo's HEAD points at
+  # refs/heads/master while the fixture only ever creates main -- the clone then
+  # lands on an unborn branch with no upstream. Pin it rather than inherit it.
+  git -C "$TMP/origin.git" symbolic-ref HEAD refs/heads/main
   git init -q "$TMP/rewrite"; git -C "$TMP/rewrite" checkout -q -b main
   echo one > "$TMP/rewrite/f"; git -C "$TMP/rewrite" add -A; git -C "$TMP/rewrite" commit -qm one
   git -C "$TMP/rewrite" remote add origin "$TMP/origin.git"
