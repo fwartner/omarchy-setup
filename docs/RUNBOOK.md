@@ -113,9 +113,13 @@ Quarterly
 | `homeassistant-mcp` | Login | Claude MCP | password = long-lived token, custom field `url` = `http://<ha-tailscale-name>:8123` |
 | `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-admin` (ServiceAccount `laptops`, **cluster-admin**) |
 | `restic-laptops` | Login | restic timer | password = repo password, custom fields `repository`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
-| `hetzner-api` | Login | nothing — Mac convenience only | password = Hetzner Cloud API token |
+| `hetzner-api` | Login | nothing — Mac convenience only | password = Hetzner Cloud API token (read/write) |
+| `hcloud-readonly` | Login | `hcloud`, read-only infra queries | password = Hetzner Cloud API token, **Read** permission. Console only — the Cloud API has no token endpoint (`/v1/tokens` 404s) |
+| `sentry-token` | Login | `sentry-cli` | password = GlitchTip auth token. `SENTRY_URL` is exported by `10-env.sh`; without it sentry-cli talks to sentry.io |
 
 Generate the fleet SSH key once on the Mac: `ssh-keygen -t ed25519 -C laptops -f ~/Desktop/id_ed25519_laptops`, paste into the vault item, add the `.pub` to GitHub and to the Serverschrank's `authorized_keys`, then delete the local copies.
+
+`sentry-token` and `hcloud-readonly` ship empty. Every script that reads a vault item guards on it, so an empty value means the feature is skipped rather than half-configured — fill them with `rbw edit <item>` whenever you get to it.
 
 `hetzner-api` is the odd one out: no bootstrap step and no script reads it, and it is not
 needed on a laptop at all. It is full read/write on `api.hetzner.cloud` — servers, volumes,

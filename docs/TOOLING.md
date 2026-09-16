@@ -84,7 +84,7 @@ Bitwarden desktop (extra 2026.3.1, pointed at `secrets.intern`) + browser extens
 
 ## Ops from the laptop
 
-sentry-cli (AUR `sentry-cli-bin` 2.31.0, token from vault item `sentry-token` — optional), **logcli** (extra 3.6.6, Loki on the cluster), gping 1.21.0, trippy 0.13.0, bandwhich 0.23.1, dog 0.1.0, hass-cli (AUR `python-homeassistant-cli` 1.0.0; uses the same HA token as the MCP item).
+sentry-cli (AUR `sentry-cli-bin` 2.31.0, token from vault item `sentry-token` — optional; targets the self-hosted GlitchTip via `SENTRY_URL`, not sentry.io), **logcli** (extra 3.6.6, Loki on the cluster), gping 1.21.0, trippy 0.13.0, bandwhich 0.23.1, dog 0.1.0, hass-cli (AUR `python-homeassistant-cli` 1.0.0; uses the same HA token as the MCP item).
 
 ## Base platform versions (2026-09-16)
 

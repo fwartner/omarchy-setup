@@ -39,3 +39,14 @@ cht() { curl -s "https://cht.sh/$*"; }
 [ -f "$HOME/.env.local" ] && . "$HOME/.env.local"
 export BAT_THEME="${BAT_THEME:-base16}"
 export DIRENV_LOG_FORMAT=""
+
+# Errors go to the self-hosted GlitchTip (Sentry-API compatible), not sentry.io.
+# sentry-cli defaults to sentry.io when this is unset, so a release upload would
+# silently go to the wrong place. Token is in the vault item `sentry-token`.
+#
+# Deliberately the PUBLIC host, unlike every other *.intern service here: the
+# errors.intern ingress sits behind the Pocket ID forward-auth middleware
+# (glitchtip-pocketid-glitchtip@kubernetescrd), which is interactive SSO. A CLI
+# holding a bearer token gets 401 from the proxy before GlitchTip ever sees the
+# request. errors.pixelandprocess.de answers /api/0/ directly.
+export SENTRY_URL="${SENTRY_URL:-https://errors.pixelandprocess.de}"
