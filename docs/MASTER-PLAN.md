@@ -189,5 +189,5 @@ omarchy-setup/
     ├── dot_config/mise/config.toml
     ├── dot_config/git/config.tmpl
     ├── private_dot_ssh/config.tmpl
-    └── private_dot_config/rbw/config.json.tmpl
+    └── dot_config/private_rbw/config.json.tmpl
 ```
