@@ -20,7 +20,7 @@ Goals
 
 Non-goals
 
-- The laptops do not become nodes of the shared Kubernetes cluster. They are clients only (kubectl/helm). Laptops close lids, lose Wi-Fi and get reinstalled; a control plane should never care about them.
+- The laptops do not become nodes of the shared Kubernetes cluster. They are clients only (kubectl/helm), though they hold cluster-admin: they are the machines the cluster is operated from. Laptops close lids, lose Wi-Fi and get reinstalled; a control plane should never care about them.
 - Hermes stays out of scope for the laptops (it lands on the Mac mini). The laptops only get the Hermes CLI/Telegram-side tooling if you want to poke at it.
 - No Pixel & Process work on these machines. The Mac keeps Forge/Herd, Lexware, client data. The split is on purpose: fewer secrets on machines that travel.
 

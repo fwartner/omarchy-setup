@@ -67,7 +67,7 @@ krew
 hcloud
 opentofu
 terraform
-awscli
+aws-cli-v2
 logcli
 # --- mesh, sync, backup
 tailscale
@@ -84,7 +84,6 @@ bandwhich
 dog
 # --- gui
 obsidian
-localsend
 bitwarden
 telegram-desktop
 dbeaver
