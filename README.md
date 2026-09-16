@@ -129,6 +129,23 @@ somewhere the script did not put it, is left in place, so hand-written skills
 and anything chezmoi manages survive a re-run. Skills you want templated per
 machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
+## Files the apps own too
+
+Four targets are written by their own program as well as by chezmoi:
+`.claude/settings.json`, `.codex/config.toml`,
+`.config/Code/User/settings.json` and `.config/mise/config.toml`. Claude Code
+adds hooks, codex rewrites on login, VS Code rewrites on any UI change, mise
+rewrites on `mise use`.
+
+Every unattended apply passes `--force`, so without help the nightly timer
+would revert all four and the apps would write them again — a revert war
+nobody watches. They carry chezmoi's `create_` attribute: written on a machine
+that does not have them, never touched again.
+
+The cost is that a later change to one of these does **not** reach machines
+that already have the file. Change those by hand, or delete the file and
+re-run. `tests/create-attr-test.sh` holds the line.
+
 ## Things that will bite you
 
 Eight lessons this repo paid for, all encoded in the scripts:
