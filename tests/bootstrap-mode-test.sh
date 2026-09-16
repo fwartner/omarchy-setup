@@ -57,14 +57,21 @@ chmod +x "$TMP/bin"/*
 FAKE_PATH="$TMP/bin:/usr/bin:/bin"
 
 ARGS=()
+RUN_N=0
 run() {
   : > "$TMP/calls"
+  RUN_N=$((RUN_N + 1))
   # Redirected to a file, not captured in $( ): the sudo keep-alive subshell
   # inherits stdout and outlives the script, so a command substitution would
   # block on it for the length of its sleep.
   env -i HOME="$TMP/home" PATH="$FAKE_PATH" REPO_DIR="$TMP/repo" "$@" \
     "${BASH:-/bin/bash}" "$SCRIPT" ${ARGS[@]+"${ARGS[@]}"} > "$TMP/out" 2>&1
-  echo "$?"
+  local rc=$?
+  # Kept so a failure here is diagnosable from a CI log, which is the only
+  # place some of these differences show up.
+  { printf '\n--- run %d (rc=%d, args: %s) ---\n' "$RUN_N" "$rc" "${ARGS[*]:-none}"
+    cat "$TMP/out"; } >> "$TMP/transcript"
+  echo "$rc"
 }
 
 echo "no marker: installs"
@@ -105,6 +112,13 @@ echo "FULL_BOOTSTRAP=1 is the same switch"
 ARGS=()
 run FULL_BOOTSTRAP=1 >/dev/null
 eq "installed anyway"     "$(grep -c 'chezmoi init' "$TMP/calls")"     "1"
+
+if [ "$fail" -gt 0 ]; then
+  echo
+  echo "=== git $(git --version | awk '{print $3}'), bash ${BASH_VERSION%%(*} ==="
+  echo "=== what bootstrap.sh actually printed ==="
+  cat "$TMP/transcript"
+fi
 
 echo
 echo "$pass passed, $fail failed"
