@@ -103,9 +103,13 @@ chezmoi apply --source "$REPO_DIR/home"
 step "8/9 editors, dev envs, agents, kube, sync"
 if [ "${SKIP_EDITORS:-0}" != "1" ]; then
   # Omarchy's own installers so theme sync keeps working
-  omarchy-install-editor vscode 2>/dev/null || omarchy install editor vscode || true
+  # Verified against omacom/omarchy bin/: the installers are one binary per
+  # editor (omarchy-install-editor-vscode), not a command taking an argument.
+  omarchy-install-editor-vscode 2>/dev/null || omarchy install editor-vscode 2>/dev/null || true
   if [ "$(chezmoi data | jq -r '.install_cursor')" = "true" ]; then
-    omarchy-install-editor cursor 2>/dev/null || omarchy install editor cursor || true
+    # Omarchy ships installers for emacs, helix, vscode and zed only — there is
+    # no Cursor one — so this comes from the AUR like any other unpackaged app.
+    yay -S --needed --noconfirm cursor-bin </dev/null || true
   fi
   if [ -f "$HOME/.config/Code/User/extensions.txt" ] && have code; then
     while read -r ext; do
@@ -115,7 +119,9 @@ if [ "${SKIP_EDITORS:-0}" != "1" ]; then
   fi
 fi
 # Ghostty as the Omarchy default terminal (keeps Super+Return etc. working)
-omarchy-setup-defaults terminal ghostty 2>/dev/null || omarchy setup defaults terminal ghostty 2>/dev/null || true
+# omarchy-setup-defaults does not exist. The real command is omarchy-default-terminal,
+# and --install fetches the terminal as well as making it the default.
+omarchy-default-terminal --install ghostty 2>/dev/null || omarchy default terminal ghostty 2>/dev/null || true
 for lang in node bun go python php laravel; do
   omarchy-install-dev-env "$lang" 2>/dev/null || omarchy install dev-env "$lang" || true
 done

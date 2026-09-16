@@ -12,13 +12,16 @@ eval "$(mise activate bash 2>/dev/null || true)"
 # --- Claude Code ------------------------------------------------------------
 # Omarchy installs Claude Code when chosen as default agent on first boot.
 if ! have claude; then
-  omarchy-install-agent claude 2>/dev/null || omarchy install agent claude 2>/dev/null \
+  # omarchy-install-agent does not exist. `omarchy-default-agent --install`
+  # installs a coding agent and makes it the default; claude is in its arg list.
+  # Note omarchy-install-ai-claude is the Claude *desktop app*, not Claude Code.
+  omarchy-default-agent --install claude 2>/dev/null \
     || curl -fsSL https://claude.ai/install.sh | bash
 fi
 
 # --- Codex CLI --------------------------------------------------------------
 if ! have codex; then
-  omarchy-install-agent codex 2>/dev/null || omarchy install agent codex 2>/dev/null \
+  omarchy-default-agent --install codex 2>/dev/null \
     || npm install -g @openai/codex
 fi
 

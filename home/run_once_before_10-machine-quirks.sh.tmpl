@@ -21,12 +21,12 @@ if ! pacman -Q rtl8821ce-dkms-git >/dev/null 2>&1; then
   sudo omarchy-pkg-add dkms linux-omarchy-headers 2>/dev/null || sudo omarchy-pkg-add dkms linux-headers
   yay -S --needed --noconfirm rtl8821ce-dkms-git
   printf 'blacklist rtw88_8821ce\nblacklist rtw_8821ce\n' | sudo tee /etc/modprobe.d/rtl8821ce.conf >/dev/null
-  # limine/systemd-boot: Omarchy manages the kernel cmdline; add the ASPM flag through its helper if present
-  if command -v omarchy-kernel-cmdline-add >/dev/null 2>&1; then
-    sudo omarchy-kernel-cmdline-add pcie_aspm.policy=performance || true
-  else
-    echo "NOTE: add pcie_aspm.policy=performance to the kernel cmdline manually (see docs/INVENTORY.md)"
-  fi
+  # Omarchy has no kernel-cmdline helper -- checked against omacom/omarchy bin/,
+  # where the only bootloader command is omarchy-refresh-limine, which *resets*
+  # limine.conf from the default. Editing the cmdline from a run_once script
+  # would be overwritten by the next refresh, so this stays a deliberate manual
+  # step rather than a call that silently does nothing.
+  echo "NOTE: add pcie_aspm.policy=performance to the kernel cmdline by hand (see docs/INVENTORY.md)"
 fi
 {{- end }}
 
