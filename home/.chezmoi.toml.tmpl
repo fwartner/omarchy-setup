@@ -15,7 +15,7 @@
     sudoless_docker = {{ $sudoless_docker }}
     role            = {{ $role | quote }}
 
-    headscale_url   = "https://headscale.intern.pixelandprocess.de"   # TODO: confirm real URL
+    headscale_url   = "https://headscale.pixelandprocess.de"          # from pixelandprocess-gitops apps/internal/headscale
     vault_url       = "https://secrets.intern.pixelandprocess.de"    # Vaultwarden (pixelandprocess-gitops apps/internal/vaultwarden)
     vault_email     = "florian@pixelandprocess.de"
     git_name        = "Florian Wartner"
@@ -23,7 +23,7 @@
     github_user     = "fwartner"
     freellm_url     = "https://llm.intern.pixelandprocess.de"
     affine_url      = "https://notes.intern.pixelandprocess.de"
-    ha_url          = "http://homeassistant.local:8123"
+    ha_url          = "http://homeassistant.ts.pixelandprocess.de:8123"   # MagicDNS name (baseDomain ts.pixelandprocess.de); mDNS does not cross the mesh
 
 [edit]
     command = "nvim"
