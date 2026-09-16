@@ -80,14 +80,11 @@ step "5/9 unlock Vaultwarden (rbw)"
 ./scripts/secrets-unlock.sh
 
 step "6/9 packages"
-ROLE="$(chezmoi data | jq -r '.role // "daily"')"
-# GUI-heavy extras are skipped on spare machines (4 GB Gemini Lake etc.)
-SPARE_SKIP='^(dbeaver|telegram-desktop|bitwarden|obsidian|bruno|harlequin|posting)$'
-# pacman / Omarchy repo
-mapfile -t PKGS < <(grep -vE '^\s*(#|$)' packages/pacman.txt | { if [ "$ROLE" = spare ]; then grep -vE "$SPARE_SKIP"; else cat; fi; })
+# scripts/pkglist.sh owns the role filter, so bootstrap and the nightly updater
+# cannot drift apart on what a spare machine gets.
+mapfile -t PKGS < <(./scripts/pkglist.sh pacman)
 sudo omarchy-pkg-add "${PKGS[@]}"
-# AUR
-mapfile -t AUR < <(grep -vE '^\s*(#|$)' packages/aur.txt | { if [ "$ROLE" = spare ]; then grep -vE "$SPARE_SKIP"; else cat; fi; })
+mapfile -t AUR < <(./scripts/pkglist.sh aur)
 if [ "${#AUR[@]}" -gt 0 ]; then
   yay -S --needed --noconfirm "${AUR[@]}"
 fi

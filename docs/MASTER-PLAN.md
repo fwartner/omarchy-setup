@@ -142,7 +142,7 @@ Layers, bottom to top:
 | `wifi_driver` | `""`, `broadcom` | installs `broadcom-wl-dkms` |
 | `install_cursor` | `true/false` | Install > Editor Cursor |
 | `sudoless_docker` | `false` | legacy; podman is rootless so it is a no-op |
-| `role` | `daily`, `spare` | spare machines skip Syncthing folders that are large |
+| `role` | `daily`, `spare` | spare machines skip GUI-heavy packages (obsidian, bitwarden, telegram-desktop, dbeaver, bruno, harlequin, posting) — see `scripts/pkglist.sh` |
 
 All are asked once by `.chezmoi.toml.tmpl` on first `chezmoi init` and stored in `~/.config/chezmoi/chezmoi.toml`.
 
