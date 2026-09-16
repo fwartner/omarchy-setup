@@ -1,5 +1,4 @@
 # AUR packages (installed via yay). Every AUR package is a build on every laptop — prefer -bin where it exists.
-herdr
 opencode-bin
 gh-dash
 kubectl-cnpg
@@ -14,5 +13,4 @@ sentry-cli-bin
 python-homeassistant-cli
 bruno
 # broadcom-wl-dkms is installed conditionally by chezmoi's run_once script, not here
-# GUI file sharing over the LAN; AUR-only, never reached the official repos.
-localsend
+# herdr and localsend are in omarchy-base.packages, so they are not listed here.

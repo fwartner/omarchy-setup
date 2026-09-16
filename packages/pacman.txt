@@ -1,10 +1,11 @@
 # Arch / Omarchy repo packages (installed via omarchy-pkg-add). One per line.
-# Omarchy already ships: fzf ripgrep fd bat eza zoxide btop lazygit lazydocker impala bluetui wiremix neovim.
+# Omarchy's own install/omarchy-base.packages (150 entries) is installed on every
+# machine, so nothing from it is repeated here. Checked with:
+#   comm -12 <(./scripts/pkglist.sh pacman|sort -u) <(omarchy base+other packages)
 # --- shell & terminal
 chezmoi
 rbw
 pinentry
-starship
 ghostty
 atuin
 yazi
@@ -12,15 +13,11 @@ television
 gitui
 git-delta
 difftastic
-git
-jq
 go-yq
 fx
-tmux
 htop
 ncdu
 tree
-unzip
 zip
 rsync
 wget
@@ -34,7 +31,6 @@ duf
 procs
 sd
 typos
-fastfetch
 tealdeer
 glow
 zk
@@ -48,9 +44,10 @@ git-branchless
 # --- dev
 podman
 podman-compose
-# Provides the `docker` command as a podman alias, so compose files, CI
-# snippets and muscle memory keep working unchanged.
-podman-docker
+# podman-docker is deliberately NOT here: it declares `conflicts: [docker]`, and
+# omarchy-base installs `docker` on every machine, so pacman would refuse the
+# transaction mid-bootstrap. 50-containers.sh aliases `docker` to podman instead,
+# which gets the same muscle memory with no package conflict.
 buildah
 mise
 shellcheck
@@ -79,15 +76,12 @@ syncthing
 restic
 # --- hardware / laptop
 fwupd
-power-profiles-daemon
-brightnessctl
 # --- network diagnostics
 gping
 trippy
 bandwhich
 dog
 # --- gui
-obsidian
 bitwarden
 telegram-desktop
 dbeaver

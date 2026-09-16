@@ -14,7 +14,9 @@ SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST_DIR="${MANIFEST_DIR:-$SELF_DIR/../packages}"
 
 # GUI-heavy extras, skipped on spare machines (4 GB Gemini Lake etc.).
-SPARE_SKIP='^(dbeaver|telegram-desktop|bitwarden|obsidian|bruno|harlequin|posting)$'
+# obsidian is not here: omarchy-base installs it on every machine, so skipping it
+# in our manifest would not keep it off a spare laptop.
+SPARE_SKIP='^(dbeaver|telegram-desktop|bitwarden|bruno|harlequin|posting)$'
 
 role() {
   [ -n "${ROLE:-}" ] && { printf '%s\n' "$ROLE"; return; }

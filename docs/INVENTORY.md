@@ -25,4 +25,4 @@ Fill in the "verify" cells from the Omarchy live USB: `lscpu | grep 'Model name'
 - BIOS via Novo pinhole button or F2; F12 boot menu. Boot Mode UEFI, Secure Boot off (Security tab).
 - Wi-Fi depends on the SKU. Realtek RTL8821CE runs on mainline `rtw_8821ce` (kernel ≥ 5.16); if it disconnects with beacon loss, set `wifi_driver = rtl8821ce` (installs AUR `rtl8821ce-dkms-git`, blacklists `rtw_8821ce`, adds `pcie_aspm.policy=performance`). QCA9377 (ath10k) and Intel 3165 (iwlwifi) need nothing.
 - No eMMC on this model, so LUKS + Btrfs on the SATA disk is normal.
-- `role = spare` makes chezmoi skip the large Syncthing folders and the GUI extras (DBeaver, Bruno, Telegram) — see `.chezmoiignore`.
+- `role = spare` drops the GUI-heavy packages (DBeaver, Bruno, Telegram, Bitwarden, Harlequin, Posting) from both the install and the nightly update — see `scripts/pkglist.sh`, which both `bootstrap.sh` and `scripts/update-all.sh` call so they cannot disagree. It does **not** touch `.chezmoiignore`, which branches only on `wifi_driver`, and it does not affect Syncthing folders. Obsidian cannot be skipped: `omarchy-base.packages` installs it on every machine.
