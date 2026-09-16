@@ -24,6 +24,7 @@ jobs:
           ./tests/repo-sync-test.sh
           ./tests/bashrc-test.sh
           ./tests/skills-test.sh
+          ./tests/bootstrap-mode-test.sh
       - name: plugin manifest is well formed
         run: |
           set -e

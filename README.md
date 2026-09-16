@@ -91,8 +91,17 @@ curl -fsSL https://raw.githubusercontent.com/<you>/omarchy-setup/main/bootstrap.
 
 Private fork? The raw URL 404s without a token — see `docs/RUNBOOK.md` §3.
 
-`bootstrap.sh` is idempotent. Re-run it after any change; the daily timer calls
-the same path.
+`bootstrap.sh` is idempotent, and a second run on the same machine **updates it
+instead of reinstalling it**. Once a run finishes it drops a marker in
+`~/.local/state/`; every later run pulls this repo, then hands off to
+`scripts/update-all.sh` — config, `omarchy-update -y`, themes, packages, agent
+skills and repos — and finishes with `verify.sh`. That is strictly more than
+replaying the install steps, which never update the system at all.
+
+So there is one command to remember. `./bootstrap.sh --full` (or
+`FULL_BOOTSTRAP=1`) forces the install path back, for when a step needs
+replaying. The marker is written last, so a run that died half way through is
+not mistaken for a finished one.
 
 ## Agent skills
 

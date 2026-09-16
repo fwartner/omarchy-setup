@@ -9,19 +9,25 @@
 # or, with the repo already cloned:
 #   ./bootstrap.sh
 #
-# Idempotent: safe to re-run after `omarchy update`.
+# Idempotent: safe to re-run after `omarchy update`. On a machine it has
+# already finished once it updates everything instead of reinstalling it --
+# `./bootstrap.sh --full` forces the install path back.
+#
 # Environment overrides:
 #   REPO_URL        git URL of this repo (default: github.com/your-github-user/omarchy-setup)
 #   REPO_TOKEN      GitHub token for the first clone (the repo is private)
 #   SKIP_HEADSCALE  set to 1 to skip mesh join
 #   SKIP_EDITORS    set to 1 to skip VS Code / Cursor install
+#   FULL_BOOTSTRAP  set to 1 to replay every install step on a done machine
 
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/your-github-user/omarchy-setup.git}"
 REPO_DIR="${REPO_DIR:-$HOME/.local/share/omarchy-setup}"
 LOG="$HOME/.local/state/omarchy-setup-bootstrap.log"
+DONE_MARKER="$HOME/.local/state/omarchy-setup-bootstrapped"
 mkdir -p "$(dirname "$LOG")"
+if [ "${1:-}" = "--full" ]; then FULL_BOOTSTRAP=1; fi
 exec > >(tee -a "$LOG") 2>&1
 
 step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
@@ -69,6 +75,29 @@ else
   fi
 fi
 cd "$REPO_DIR"
+
+# A machine that has already been through this does not need installing again,
+# it needs updating -- and re-running bootstrap is the obvious thing to reach
+# for when you want a laptop current. Steps 0-2 above already ran, so sudo is
+# cached and this checkout is current; the updater takes it from there.
+#
+# This is not the same work as replaying steps 3-9. Those reinstall; the
+# updater pulls config, runs `omarchy-update -y`, refreshes themes, skills and
+# repos, and reconciles the package manifests. The install path never updates
+# the system at all.
+if [ -f "$DONE_MARKER" ] && [ "${FULL_BOOTSTRAP:-0}" != "1" ]; then
+  step "already bootstrapped ($(cat "$DONE_MARKER")) — updating instead"
+  echo "Replay every install step with: ./bootstrap.sh --full"
+  # The keep-alive from step 0/9 is why this can reconcile packages at all:
+  # update-all.sh uses `sudo -n` so the nightly timer cannot hang on a prompt,
+  # and under the timer that silently skips.
+  ./scripts/update-all.sh
+  step "verify"
+  ./scripts/verify.sh || true
+  echo
+  echo "Update finished. Log: $LOG"
+  exit 0
+fi
 
 step "3/9 chezmoi init (asks per-machine questions on first run)"
 if [ ! -f "$HOME/.config/chezmoi/chezmoi.toml" ]; then
@@ -155,6 +184,11 @@ done
 step "9/9 verify"
 ./scripts/verify.sh || true
 
+# Written last, so a run that died half way through is not mistaken for a
+# finished one and downgraded to an update on the next attempt.
+printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  "$(git -C "$REPO_DIR" rev-parse --short HEAD)" > "$DONE_MARKER"
+
 cat <<EOF
 
 Bootstrap finished. Remaining manual steps:
@@ -164,6 +198,6 @@ Bootstrap finished. Remaining manual steps:
   4. reboot          → picks up hypr overrides and shell changes
 
 Automatic updates are on: config every 30min, full update daily.
-Run one now with: ~/.local/share/omarchy-setup/scripts/update-all.sh
+Run one now with: ./bootstrap.sh   (a second run updates instead of installing)
 Log: $LOG
 EOF

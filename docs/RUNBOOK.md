@@ -173,13 +173,25 @@ backend will not authorise it. Neither indicates a wrong secret.
 If nightly backups show intermittent failures, this is why. Open a ticket with Hetzner
 referencing the `HostId` from the error body rather than rotating credentials.
 
+## Keeping a machine current
+
+Run `./bootstrap.sh` again. On a machine that finished bootstrap once it pulls this repo
+and hands off to `scripts/update-all.sh` -- config, `omarchy-update -y`, themes, packages,
+agent skills, repos -- then runs `verify.sh`. Nothing is reinstalled.
+
+The timers do the same thing unattended (config every 30 min, everything daily), so this
+is only for when you want it now, or want to watch it. `./bootstrap.sh --full` forces the
+install path back when a step needs replaying.
+
 ## Bootstrap failures seen in the field
 
 **`rbw unlock: failed to read password from pinentry: pinentry cancelled`** at step 5/9.
 Nothing was cancelled -- the configured pinentry binary did not exist. pinentry is now
 installed in step 1/9 alongside rbw; before that it sat in `packages/pacman.txt`, which is
 step 6/9, one step too late to unlock the vault. If it recurs on an existing machine:
-`sudo pacman -S --needed pinentry` and re-run `bootstrap.sh`, which is idempotent.
+`sudo pacman -S --needed pinentry` and run `./bootstrap.sh --full`. The plain re-run
+updates rather than reinstalls on a machine that has finished once, so `--full` is what
+replays step 5/9.
 
 **`rbw login: unsupported two factor methods: WebAuthn`** at step 5/9. See §0 -- the account
 needs Authenticator (TOTP) enabled alongside WebAuthn, because no CLI can satisfy WebAuthn.
