@@ -98,6 +98,7 @@ Monthly
 Quarterly
 
 - [ ] Rotate `github-token-laptops`, Headscale pre-auth keys (they expire anyway), Home Assistant and AFFiNE tokens → update vault items → `chezmoi apply` + `agents-setup.sh` on each laptop.
+      `github-token-laptops` currently holds a **classic** PAT whose scopes include `admin:org`, `admin:enterprise` and `delete_repo`, and classic PATs inherit org access, so it reaches Pixel-Process-UG repos too. Replacing it with a fine-grained token (owner `fwartner`, Contents RW / Workflows RW / Metadata R / Pull requests RW) is the single biggest reduction in blast radius for a lost laptop. Until then, revoking it is step one of the lost-laptop drill below.
 - [ ] `restic check` and a test restore of one file.
 - [ ] Prune Headscale nodes that no longer exist.
 
@@ -121,4 +122,4 @@ Generate the fleet SSH key once on the Mac: `ssh-keygen -t ed25519 -C laptops -f
 
 - Omarchy update broke something: reboot, choose the previous Btrfs snapshot in the boot menu.
 - Dotfiles broke something: `chezmoi apply --dry-run --verbose` shows the diff; `omarchy reinstall configs` restores Omarchy defaults, then fix the repo and `chezmoi apply`.
-- Laptop lost: `headscale nodes delete`, rotate `github-token-laptops` and `ssh-laptops`, revoke the HA/AFFiNE tokens, `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.
+- Laptop lost: revoke `github-token-laptops` first (it is currently an org-wide classic PAT), then `headscale nodes delete`, rotate `ssh-laptops`, revoke the HA/AFFiNE tokens, and rotate the Hetzner S3 key pair in `restic-laptops`. `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.
