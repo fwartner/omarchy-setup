@@ -17,6 +17,19 @@ jobs:
           for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh tests/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
             bash -n "$f"
           done
+      - name: no unattended command can sit on a prompt
+        run: |
+          set -e
+          # A laptop parked at step 7/9 on chezmoi's
+          # "diff/overwrite/all-overwrite/skip/quit" is invisible until someone
+          # walks past it. These paths all run with nobody watching. Quoted
+          # strings are stripped first so a message mentioning the command, and
+          # comments, are not mistaken for a call.
+          bad=$(grep -rn 'chezmoi apply' bootstrap.sh scripts/ home/dot_config/omarchy/hooks/ \
+            | sed 's/"[^"]*"//g' | grep -v ':[0-9]*:[[:space:]]*#' \
+            | grep 'chezmoi apply' | grep -v -- '--force' || true)
+          if [ -n "$bad" ]; then echo "chezmoi apply without --force:"; echo "$bad"; exit 1; fi
+          echo "every unattended chezmoi apply passes --force"
       - name: every script this repo executes is executable
         run: |
           set -e

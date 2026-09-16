@@ -39,7 +39,13 @@ if have chezmoi; then
       git -C "$REPO_DIR" pull --ff-only --quiet || echo "could not fast-forward $REPO_DIR; leaving it alone"
     fi
   fi
-  chezmoi apply --source "$SOURCE_DIR" || echo "chezmoi apply reported errors"
+  # </dev/null as well as --force: a prompt on a timer hangs until someone
+  # notices, which on a laptop is never. Closed stdin turns any prompt chezmoi
+  # still finds a reason for into an error this can report and move past.
+  chezmoi init --source "$SOURCE_DIR" </dev/null \
+    || echo "chezmoi init wants an answer; run ./bootstrap.sh by hand"
+  chezmoi apply --force --source "$SOURCE_DIR" </dev/null \
+    || echo "chezmoi apply reported errors"
   # Unit files may have just changed underneath us.
   systemctl --user daemon-reload 2>/dev/null || true
 else

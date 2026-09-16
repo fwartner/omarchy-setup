@@ -4,6 +4,8 @@ lint:            ## shellcheck + syntax + exec bits
 	@bad=$$(git ls-files -s bootstrap.sh 'scripts/*.sh' 'scripts/mac/*.sh' 'tests/*.sh' | awk '$$1 != "100755" { print $$1, $$4 }'); \
 	  if [ -n "$$bad" ]; then echo "not executable in the index:"; echo "$$bad"; exit 1; fi
 	@for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh tests/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do bash -n $$f; done
+	@bad=$$(grep -rn 'chezmoi apply' bootstrap.sh scripts/ home/dot_config/omarchy/hooks/ | sed 's/"[^"]*"//g' | grep -v ':[0-9]*:[[:space:]]*#' | grep 'chezmoi apply' | grep -v -- '--force' || true); \
+	  if [ -n "$$bad" ]; then echo "chezmoi apply without --force:"; echo "$$bad"; exit 1; fi
 	@shellcheck -S warning bootstrap.sh scripts/*.sh scripts/mac/*.sh tests/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh
 
 test:            ## run the script self-checks

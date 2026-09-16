@@ -125,9 +125,13 @@ if [ -f "$DONE_MARKER" ] && [ "${FULL_BOOTSTRAP:-0}" != "1" ]; then
 fi
 
 step "3/9 chezmoi init (asks per-machine questions on first run)"
-if [ ! -f "$HOME/.config/chezmoi/chezmoi.toml" ]; then
-  chezmoi init --source "$REPO_DIR/home"
-fi
+# Unconditional, not "only if chezmoi.toml is missing". When .chezmoi.toml.tmpl
+# gains a key, an existing machine keeps a config generated from the old
+# template -- chezmoi warns "config file template has changed", and any
+# template using the new key fails with "map has no entry for key".
+# Every prompt is a promptXOnce, so a stored answer is reused and this is
+# silent unless a genuinely new question was added.
+chezmoi init --source "$REPO_DIR/home"
 
 step "4/9 Headscale mesh"
 if [ "${SKIP_HEADSCALE:-0}" != "1" ]; then
@@ -153,7 +157,12 @@ if command -v kubectl-krew >/dev/null 2>&1 || [ -x "$HOME/.krew/bin/kubectl-krew
 fi
 
 step "7/9 apply dotfiles"
-chezmoi apply --source "$REPO_DIR/home"
+# --force, because a target that changed since chezmoi last wrote it otherwise
+# stops on "diff/overwrite/all-overwrite/skip/quit" and waits forever. VS Code
+# rewrites its own settings.json, so that prompt is not hypothetical -- it
+# parked a laptop at step 7/9. The repo is the source of truth for fleet
+# config; edits to a managed file belong in the repo, not on the machine.
+chezmoi apply --force --source "$REPO_DIR/home"
 
 step "8/9 editors, dev envs, agents, kube, sync"
 if [ "${SKIP_EDITORS:-0}" != "1" ]; then

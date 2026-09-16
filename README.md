@@ -127,7 +127,7 @@ machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
 ## Things that will bite you
 
-Six lessons this repo paid for, all encoded in the scripts:
+Seven lessons this repo paid for, all encoded in the scripts:
 
 - **Do not duplicate or collide with Omarchy's own packages.** A duplicate is
   noise; a *conflict* aborts the entire pacman transaction mid-bootstrap. Check
@@ -150,6 +150,12 @@ Six lessons this repo paid for, all encoded in the scripts:
   common ancestor, so step 2/9 died with `Not possible to fast-forward` on the
   machine that needed repairing. `scripts/self-update.sh` fetches and resets
   onto the new history, and refuses when the worktree is dirty.
+- **`chezmoi apply` prompts, and an unattended run waits forever.** When a
+  target changed since chezmoi last wrote it, apply stops on
+  `diff/overwrite/all-overwrite/skip/quit`. VS Code rewrites its own
+  `settings.json`, so this is routine, not rare -- it parked a laptop at step
+  7/9. Every unattended apply passes `--force`, the repo being the source of
+  truth for fleet config, and `make lint` fails if one stops doing so.
 - **`rbw` runs a background agent with no controlling terminal.** A terminal
   pinentry cannot work there — it reports "pinentry cancelled", which looks like
   you pressed escape. It needs a GUI pinentry. The agent also caches its config,
