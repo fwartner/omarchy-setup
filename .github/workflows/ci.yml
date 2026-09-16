@@ -14,9 +14,22 @@ jobs:
       - name: syntax
         run: |
           set -e
-          for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
+          for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh tests/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
             bash -n "$f"
           done
+      - name: unit + integration tests
+        run: |
+          git config --global user.email ci@example
+          git config --global user.name CI
+          ./tests/repo-sync-test.sh
+      - name: repo manifest is well formed
+        run: |
+          set -e
+          # Every active line must be owner/repo, with an optional known flag.
+          bad=$(grep -vE '^\s*(#|$)' packages/repos.txt \
+            | grep -vE '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+([[:space:]]+pull-only)?[[:space:]]*$' || true)
+          if [ -n "$bad" ]; then echo "malformed entries:"; echo "$bad"; exit 1; fi
+          echo "$(grep -cvE '^\s*(#|$)' packages/repos.txt) entries OK"
       - name: shellcheck
         uses: ludeeus/action-shellcheck@2.0.0
         with:
