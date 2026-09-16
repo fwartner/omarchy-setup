@@ -127,7 +127,7 @@ machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
 ## Things that will bite you
 
-Four lessons this repo paid for, all encoded in the scripts:
+Five lessons this repo paid for, all encoded in the scripts:
 
 - **Do not duplicate or collide with Omarchy's own packages.** A duplicate is
   noise; a *conflict* aborts the entire pacman transaction mid-bootstrap. Check
@@ -138,6 +138,13 @@ Four lessons this repo paid for, all encoded in the scripts:
   and take hours on a laptop.
 - **Pin providers for ambiguous dependencies.** `java-runtime>=21` has six
   providers; pacman stops and asks, and nobody is watching an unattended install.
+- **Pin the Hyprland Lua API to the version your fleet runs, not the default
+  branch.** `o.rebind` exists in Omarchy's development branch and not in 4.x, so
+  `bindings.lua` loaded fine in review and died on the laptop with `attempt to
+  call a nil value (field 'rebind')`. `hl.unbind` then `o.bind` is the form 4.x
+  documents. `tests/bindings-test.lua` now stubs the API *strictly* — any helper
+  absent from v4.0.4 raises — because the previous stub defined `o.rebind`
+  itself and so confirmed a function that was never there.
 - **`rbw` runs a background agent with no controlling terminal.** A terminal
   pinentry cannot work there — it reports "pinentry cancelled", which looks like
   you pressed escape. It needs a GUI pinentry. The agent also caches its config,

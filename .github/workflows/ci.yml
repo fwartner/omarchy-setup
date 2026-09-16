@@ -17,6 +17,12 @@ jobs:
           for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh tests/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
             bash -n "$f"
           done
+      - name: lua (hypr bindings run against a strict Omarchy 4.x API stub)
+        run: |
+          set -e
+          sudo apt-get update -qq && sudo apt-get install -y -qq lua5.4
+          luac5.4 -p home/dot_config/hypr/bindings.lua
+          lua5.4 tests/bindings-test.lua
       - name: unit + integration tests
         run: |
           git config --global user.email ci@example

@@ -9,8 +9,11 @@ test:            ## run the script self-checks
 	@./tests/bashrc-test.sh
 	@./tests/skills-test.sh
 	@./tests/bootstrap-mode-test.sh
-	@command -v luac >/dev/null 2>&1 && luac -p home/dot_config/hypr/bindings.lua && echo 'bindings.lua: valid Lua' || true
-	@command -v lua >/dev/null 2>&1 && lua tests/bindings-test.lua || echo 'bindings-test: skipped (no lua)'
+	@# `cmd && test || echo skipped` reported a FAILING lua test as "skipped (no
+	@# lua)" and exited 0. That is how a bindings.lua calling a helper Omarchy 4.x
+	@# does not have reached a laptop. If lua is here, the test must be able to fail.
+	@if command -v luac >/dev/null 2>&1; then luac -p home/dot_config/hypr/bindings.lua && echo 'bindings.lua: valid Lua'; else echo 'luac: skipped (no lua)'; fi
+	@if command -v lua >/dev/null 2>&1; then lua tests/bindings-test.lua; else echo 'bindings-test: skipped (no lua)'; fi
 
 sync:            ## clone/refresh every repo in packages/repos.txt
 	@./scripts/repo-sync.sh
