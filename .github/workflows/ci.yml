@@ -14,7 +14,7 @@ jobs:
       - name: syntax
         run: |
           set -e
-          for f in bootstrap.sh scripts/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
+          for f in bootstrap.sh scripts/*.sh scripts/mac/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
             bash -n "$f"
           done
       - name: shellcheck
