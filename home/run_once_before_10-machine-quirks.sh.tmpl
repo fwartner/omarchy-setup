@@ -31,12 +31,15 @@ fi
 {{- end }}
 
 {{ if .sudoless_docker -}}
-# opt-in per machine (Omarchy 4.0.1+ no longer adds the user to docker by default)
-omarchy-setup-security-sudoless-docker 2>/dev/null || sudo usermod -aG docker "$USER"
+# Kept only so an existing chezmoi.toml carrying sudoless_docker = true does not
+# silently change meaning. Podman is rootless natively: there is no group to join.
+echo "NOTE: sudoless_docker is set, but this fleet runs podman, which is rootless by default. Nothing to do."
 {{- end }}
 
-# docker enabled
-sudo systemctl enable --now docker
+# Podman needs no daemon. The socket exists only for tools that speak the Docker
+# API (lazydocker, testcontainers, the VS Code extension), and it is a *user*
+# unit because running rootless is the whole point of the switch.
+systemctl --user enable --now podman.socket 2>/dev/null || true
 
 # global git hooks template (gitleaks via pre-commit in every new clone)
 mkdir -p "$HOME/.config/git/template/hooks"

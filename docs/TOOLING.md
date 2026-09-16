@@ -50,7 +50,7 @@ Decided 2026-09-16 over four rounds. Versions are what installs today (Arch `ext
 ## Laravel / PHP / JS stack (full)
 
 - `omarchy install dev-env php laravel node bun go python` — PHP + composer + xdebug from pacman, everything else via **mise** (`packages/mise.toml`: node lts, bun, go, python 3.13, plus `herdr` fallback if AUR lags).
-- Laravel installer via `composer global require laravel/installer`; Herd is macOS-only, so local sites run with `php artisan serve` or `docker compose` — templates in `templates/docker/` (postgres 17, mysql 8.4, valkey, mailpit, minio).
+- Laravel installer via `composer global require laravel/installer`; Herd is macOS-only, so local sites run with `php artisan serve` or `podman-compose` — templates in `templates/docker/` (postgres 17, mysql 8.4, valkey, mailpit, minio).
 - Omarchy `Install > Development > Docker DB` covers the one-off case.
 
 ## Git workflow
