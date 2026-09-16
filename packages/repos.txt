@@ -46,4 +46,4 @@ Pixel-Process-UG/drohnenatlas-marketing
 Pixel-Process-UG/pixelandprocess-gitops   pull-only
 
 # sorrel: no repo by that name exists under fwartner or any org on this account,
-# and a global search found only unrelated projects. Add it here once it exists.
+fwartner/privacy-monster

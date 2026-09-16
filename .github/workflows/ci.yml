@@ -22,6 +22,7 @@ jobs:
           git config --global user.email ci@example
           git config --global user.name CI
           ./tests/repo-sync-test.sh
+          ./tests/bashrc-test.sh
       - name: repo manifest is well formed
         run: |
           set -e
