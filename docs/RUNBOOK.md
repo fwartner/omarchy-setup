@@ -120,6 +120,34 @@ Create the AFFiNE credential **inside the self-hosted instance** (`https://notes
 
 `rbw` reads items but cannot create them or set custom fields. Creating and updating these items is done on the Mac with the official Bitwarden CLI (`brew install bitwarden-cli`, `bw config server https://secrets.intern.pixelandprocess.de`). The laptops only ever read, so they only need `rbw`.
 
+## Known issue — Hetzner Object Storage, nbg1 ceph5
+
+As of 2026-09-16 a share of S3 requests to `nbg1.your-objectstorage.com` fail with
+`403 AccessDenied`, and every failure observed came back from the backend
+`nbg1-prod1-ceph5`. Identical back-to-back requests alternate 200 and 403 at roughly
+15-20% failure. The cluster's older `cnpg-backup-s3` credential does not show it, so it
+looks like a per-credential replication gap on that one node rather than a permission
+problem.
+
+What this means in practice:
+
+- `restic init`, `backup`, `restore` and `forget` may fail on one run and succeed on the
+  next. Retrying is the correct response; restic treats 403 as fatal and will not retry
+  it itself.
+- **`restic check` can report `The repository index is damaged and must be repaired`
+  on a perfectly healthy repository.** This was observed and then contradicted by two
+  consecutive clean `check` runs on the same repo. Do not run `restic repair index`
+  on the strength of a single failed check — run `check` again first.
+- Regenerating the S3 credential does not fix it and makes things worse short-term: a
+  brand-new key returns `InvalidAccessKeyId` on 100% of requests until it propagates.
+
+The distinguishing error codes are worth knowing: `InvalidAccessKeyId` means the key does
+not exist on the backend that served the request; `AccessDenied` means it exists but that
+backend will not authorise it. Neither indicates a wrong secret.
+
+If nightly backups show intermittent failures, this is why. Open a ticket with Hetzner
+referencing the `HostId` from the error body rather than rotating credentials.
+
 ## Rollback
 
 - Omarchy update broke something: reboot, choose the previous Btrfs snapshot in the boot menu.
