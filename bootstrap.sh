@@ -55,7 +55,23 @@ sudo omarchy-pkg-add chezmoi rbw git jq fzf ripgrep fd pinentry
 
 step "2/9 clone/update repo"
 if [ -d "$REPO_DIR/.git" ]; then
-  git -C "$REPO_DIR" pull --ff-only
+  # Not `git pull --ff-only`: a checkout from before this repo's history was
+  # rewritten has no common ancestor with origin, and the pull aborts with
+  # "Not possible to fast-forward" -- fatal here under `set -e`, on exactly
+  # the machine that needs repairing.
+  #
+  # scripts/self-update.sh does the repair, but such a checkout predates it
+  # too, so it is read out of what was just fetched rather than off disk.
+  # bootstrap.sh is re-downloaded on every curl|bash run; the checkout is not.
+  git -C "$REPO_DIR" fetch --quiet --prune origin || true
+  SELF_UPDATE="$(mktemp)"
+  DEFAULT_BRANCH="$(git -C "$REPO_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+  if git -C "$REPO_DIR" show "origin/${DEFAULT_BRANCH:-main}:scripts/self-update.sh" > "$SELF_UPDATE" 2>/dev/null; then
+    bash "$SELF_UPDATE" "$REPO_DIR"
+  else
+    git -C "$REPO_DIR" pull --ff-only
+  fi
+  rm -f "$SELF_UPDATE"
 else
   # The repo is private and the vault cannot help yet: rbw is configured from
   # data that lives in this repo, so the token for the very first clone has to

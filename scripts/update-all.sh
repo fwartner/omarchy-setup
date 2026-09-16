@@ -29,8 +29,15 @@ echo "=== update-all $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 # reason this runs on a timer.
 step "configuration (chezmoi update)"
 if have chezmoi; then
-  if [ -d "$SOURCE_DIR/.git" ] || [ -d "$REPO_DIR/.git" ]; then
-    git -C "$REPO_DIR" pull --ff-only --quiet || echo "could not fast-forward $REPO_DIR; leaving it alone"
+  if [ -d "$REPO_DIR/.git" ]; then
+    # Handles a force-pushed upstream, which a plain `pull --ff-only` cannot:
+    # it would fail here every night, forever, and silently stop updating
+    # config on a machine that looks fine.
+    if [ -x "$REPO_DIR/scripts/self-update.sh" ]; then
+      "$REPO_DIR/scripts/self-update.sh" "$REPO_DIR" || echo "leaving $REPO_DIR at its current commit"
+    else
+      git -C "$REPO_DIR" pull --ff-only --quiet || echo "could not fast-forward $REPO_DIR; leaving it alone"
+    fi
   fi
   chezmoi apply --source "$SOURCE_DIR" || echo "chezmoi apply reported errors"
   # Unit files may have just changed underneath us.
