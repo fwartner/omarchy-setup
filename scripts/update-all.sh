@@ -82,6 +82,14 @@ else
   echo "omarchy-theme-update not present; skipping"
 fi
 
+# --- coding-agent skills ------------------------------------------------------
+step "agent skills"
+if [ -x "$REPO_DIR/scripts/skills-setup.sh" ]; then
+  "$REPO_DIR/scripts/skills-setup.sh" || true
+else
+  echo "skills-setup.sh missing; skipping"
+fi
+
 # --- project repos -----------------------------------------------------------
 step "project repos"
 if [ -x "$REPO_DIR/scripts/repo-sync.sh" ]; then

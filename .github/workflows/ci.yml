@@ -23,6 +23,7 @@ jobs:
           git config --global user.name CI
           ./tests/repo-sync-test.sh
           ./tests/bashrc-test.sh
+          ./tests/skills-test.sh
       - name: plugin manifest is well formed
         run: |
           set -e
@@ -30,6 +31,14 @@ jobs:
             | grep -vE '^https://[A-Za-z0-9._/-]+\.git$' || true)
           if [ -n "$bad" ]; then echo "malformed plugin URLs:"; echo "$bad"; exit 1; fi
           echo "$(sed -E 's/#.*//' packages/plugins.txt | awk 'NF' | wc -l) plugin URLs OK"
+      - name: skills manifest is well formed
+        run: |
+          set -e
+          # plugin <name>@<marketplace> [source], or skills <git URL>.
+          bad=$(sed -E 's/#.*//' packages/skills.txt | awk 'NF' \
+            | grep -vE '^(plugin[[:space:]]+[A-Za-z0-9._-]+@[A-Za-z0-9._-]+([[:space:]]+[A-Za-z0-9._:/-]+)?|skills[[:space:]]+https://[A-Za-z0-9._/-]+\.git)[[:space:]]*$' || true)
+          if [ -n "$bad" ]; then echo "malformed skill entries:"; echo "$bad"; exit 1; fi
+          echo "$(sed -E 's/#.*//' packages/skills.txt | awk 'NF' | wc -l) skill entries OK"
       - name: repo manifest is well formed
         run: |
           set -e
