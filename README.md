@@ -131,11 +131,16 @@ machine go in `home/dot_claude/skills/` instead and are applied by chezmoi.
 
 ## Files the apps own too
 
-Four targets are written by their own program as well as by chezmoi:
+Six targets are written by their own program as well as by chezmoi:
 `.claude/settings.json`, `.codex/config.toml`,
-`.config/Code/User/settings.json` and `.config/mise/config.toml`. Claude Code
-adds hooks, codex rewrites on login, VS Code rewrites on any UI change, mise
-rewrites on `mise use`.
+`.config/Code/User/settings.json`, `.config/mise/config.toml`,
+`.config/ghostty/config` and `.config/hypr/monitors.lua`. Claude Code adds
+hooks, codex rewrites on login, VS Code rewrites on any UI change, mise
+rewrites on `mise use`, and Omarchy's own menus rewrite the terminal font size
+and the monitor scale.
+
+Note what that means for `monitors.lua`: the `gdk_scale` answer shapes it on a
+fresh install, and after that the display-scaling menu owns it.
 
 Every unattended apply passes `--force`, so without help the nightly timer
 would revert all four and the apps would write them again — a revert war

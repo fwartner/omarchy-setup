@@ -3,10 +3,11 @@
 #
 #   ./tests/create-attr-test.sh      (skipped when chezmoi is not installed)
 #
-# Four targets are written by their own program as well as by chezmoi: Claude
+# Six targets are written by their own program as well as by chezmoi: Claude
 # Code adds hooks to .claude/settings.json, codex rewrites .codex/config.toml
 # on login, VS Code rewrites its settings.json on any UI change, and mise
-# rewrites its config on `mise use`. Every unattended apply passes --force
+# rewrites its config on `mise use`, and Omarchy's own menus rewrite the
+# ghostty font size and the monitor scale. Every unattended apply passes --force
 # since bootstrap otherwise stopped on a conflict prompt, so without the
 # create_ attribute the nightly timer reverts all four and the apps write them
 # again -- a revert war nobody watches, which on the pilot had already eaten a
@@ -57,7 +58,11 @@ EOF
 
 cm() { chezmoi --config "$CFG" --source "$SOURCE_DIR" "$@"; }
 
-APP_OWNED=".claude/settings.json .codex/config.toml .config/Code/User/settings.json .config/mise/config.toml"
+# Written by their own program as well as by chezmoi. The last two are
+# Omarchy's own settings menus: the font-size keybinding rewrites the ghostty
+# config, and the display-scaling menu rewrites monitors.lua -- found the same
+# way as the first four, one layer down, once those stopped reporting dirty.
+APP_OWNED=".claude/settings.json .codex/config.toml .config/Code/User/settings.json .config/mise/config.toml .config/ghostty/config .config/hypr/monitors.lua"
 
 # Applying a single target does not create its parent, and a full apply would
 # need the vault. The directories are not what is under test.
