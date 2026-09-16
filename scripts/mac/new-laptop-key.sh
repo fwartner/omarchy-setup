@@ -6,7 +6,7 @@
 #
 #   ./scripts/mac/new-laptop-key.sh
 #
-# Needs: kubectl pointed at the Pixel & Process cluster, and the Bitwarden CLI
+# Needs: kubectl pointed at the Pixel & Process cluster, jq, and the Bitwarden CLI
 # unlocked (`bw login && export BW_SESSION="$(bw unlock --raw)"`). rbw cannot
 # write items, so the official CLI does the writing; the laptops still read with rbw.
 set -euo pipefail
@@ -20,14 +20,17 @@ BW="${BW:-$(command -v /opt/homebrew/bin/bw || command -v bw)}"
 
 [ -n "${BW_SESSION:-}" ] || { echo "BW_SESSION is empty. Run: export BW_SESSION=\"\$($BW unlock --raw)\"" >&2; exit 1; }
 
-KEY="$(kubectl -n headscale exec deploy/headscale -- \
-  headscale preauthkeys create --user "$USER_NAME" --reusable --expiration "$EXPIRY" --tags "$TAG" \
-  | tr -d '\r' | tail -1 | tr -d '[:space:]')"
+hs() { kubectl -n headscale exec deploy/headscale -- headscale "$@"; }
 
-# A key is a long hex string; anything shorter means headscale printed an error.
-case "${#KEY}" in
-  [0-9]|[1-9][0-9]) echo "headscale returned no usable key: $KEY" >&2; exit 1 ;;
-esac
+# headscale 0.29 takes a numeric user ID here, not a name (`--user florian` is
+# rejected). Resolve it so the script survives the user being recreated.
+USER_ID="$(hs users list -o json | jq -r --arg n "$USER_NAME" '.[] | select(.name == $n) | .id')"
+[ -n "$USER_ID" ] || { echo "no headscale user named $USER_NAME" >&2; exit 1; }
+
+# Tags are forced server-side from the key, so this works with no ACL policy
+# loaded (the tailnet is allow-all today). Verified against headscale v0.29.3.
+KEY="$(hs preauthkeys create -u "$USER_ID" --reusable --expiration "$EXPIRY" --tags "$TAG" -o json | jq -r .key)"
+[ -n "$KEY" ] && [ "$KEY" != "null" ] || { echo "headscale returned no key" >&2; exit 1; }
 
 "$BW" sync >/dev/null
 if ID="$("$BW" get item "$ITEM" 2>/dev/null | jq -r .id)" && [ -n "$ID" ] && [ "$ID" != "null" ]; then

@@ -69,7 +69,7 @@ Layers, bottom to top:
 | Agents | Claude Code, Codex CLI, `gh`; MCP servers for AFFiNE, Home Assistant, Context7 | Same setup as on the Mac. Omarchy's default coding-agent picker points to Claude Code. |
 | Containers | Docker (rootful; opt into `Setup > Security > Sudoless Docker` only on machines you trust) | Local dev DBs via Install > Development > Docker DB. |
 | Sync | Syncthing for `~/Projects/claude-obsidian` (Obsidian vault) and `~/Sync`; git for everything else | Vault also has a git remote as backup; Syncthing gives instant multi-laptop sync without a cloud. |
-| Backups | restic → your own S3-compatible store (or restic-rest on the Serverschrank), nightly systemd timer, `~/Projects` + `~/.config` excluded caches | Laptops are disposable only if backups are boring. |
+| Backups | restic → Hetzner Object Storage (`nbg1`), own bucket and own key pair, nightly systemd timer, `~/Projects` + `~/.config` excluded caches | Laptops are disposable only if backups are boring. Separate bucket and credentials from `pp-cluster-backups` so a stolen laptop key is not also a key to customer database backups. |
 
 ## 3. Decisions with reasoning
 
@@ -98,7 +98,7 @@ Layers, bottom to top:
 - **Deploy Vaultwarden to the shared cluster first** — it lives in `pixelandprocess-gitops` as `apps/internal/vaultwarden` (branch `feat/vaultwarden`), hostname `secrets.intern.pixelandprocess.de`. Nothing else in the bootstrap works without it. Create your account, disable signups, test with `rbw` from the Mac, put the SQLite data dir into the cluster's PVC backup.
 - Inventory each laptop: model, CPU, RAM, disk, Wi-Fi chipset (`lspci`/`lsusb` from any live USB), panel resolution. Record in `docs/INVENTORY.md`.
 - BIOS: update via vendor tool or LVFS later; disable Secure Boot; set SATA/NVMe to AHCI; enable virtualization.
-- Headscale: create a user `florian`, an ACL tag `tag:laptop`, and one reusable pre-auth key per laptop (short expiry). Store keys in Vaultwarden.
+- Headscale: user `florian` already exists. `tag:laptop` is forced server-side from the pre-auth key and needs no ACL policy — headscale runs `policy.mode: database` with no rows, i.e. allow-all inside the tailnet. Mint keys with `scripts/mac/new-laptop-key.sh` right before each install (they expire in 24h); it stores them in Vaultwarden.
 - Vaultwarden: create the items listed in `docs/RUNBOOK.md` §Secrets (SSH key, gh token, Anthropic/OpenAI API keys if used outside subscriptions, kubeconfig, restic repo + password, Syncthing device IDs).
 - Push this repo to `github.com/fwartner/omarchy-setup` (private).
 - Download `omarchy-4.0.4.iso`, verify SHA256, write one USB stick.
@@ -178,6 +178,7 @@ omarchy-setup/
 │   ├── agents-setup.sh          Claude Code, Codex, gh, MCP wiring
 │   ├── kube-setup.sh            kubeconfig from vault, kubectl/helm plugins
 │   ├── sync-setup.sh            Syncthing + restic timer
+│   ├── mac/new-laptop-key.sh    (Mac) mint a Headscale pre-auth key into the vault
 │   └── verify.sh                post-install checks
 └── home/                        chezmoi source directory
     ├── .chezmoi.toml.tmpl       per-machine prompts
