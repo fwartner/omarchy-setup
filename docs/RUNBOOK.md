@@ -64,7 +64,7 @@ You will be asked, in this order:
 
 - [ ] Reboot (Hyprland overrides, docker group, hostname).
 - [ ] `~/.local/share/omarchy-setup/scripts/verify.sh` → all green. Typical first-run reds: kubectl (kubeconfig item missing). Home Assistant is reached at `http://homeassistant.ts.pixelandprocess.de:8123` — the MagicDNS name, because mDNS does not cross the mesh.
-- [ ] Open VS Code (`Super + E`), theme matches Omarchy, Claude Code extension logged in.
+- [ ] Open VS Code from the Omarchy menu, theme matches Omarchy, Claude Code extension logged in.
 - [ ] `proj` opens the fuzzy switcher; `clone fwartner/<repo>` works.
 - [ ] `kubectl get nodes` returns the cluster. Writes must fail: `kubectl auth can-i delete pods` → `no`.
 - [ ] Obsidian opens `~/Projects/claude-obsidian` and shows the `hermes/` folder synced from the Mac.
