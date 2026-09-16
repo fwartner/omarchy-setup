@@ -1,0 +1,11 @@
+[Unit]
+Description=Pull fleet dotfiles every 30 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=30min
+# A laptop that was asleep at the scheduled time still gets the config.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

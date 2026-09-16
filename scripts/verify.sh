@@ -17,7 +17,7 @@ check "tailscaled running"             "systemctl is-active tailscaled"
 check "tailscale logged in"            "tailscale status --json | jq -e '.BackendState==\"Running\"'"
 check "llm.intern reachable"           "curl -fsS --max-time 5 https://llm.intern.pixelandprocess.de -o /dev/null || curl -fsS --max-time 5 http://llm.intern.pixelandprocess.de -o /dev/null"
 check "notes.intern reachable"         "curl -fsS --max-time 5 https://notes.intern.pixelandprocess.de -o /dev/null"
-check "Home Assistant reachable"       "curl -fsS --max-time 5 \"\$(chezmoi data | jq -r .ha_url)\" -o /dev/null"
+check "Home Assistant reachable"       "curl -fsS --max-time 5 http://homeassistant.local:8123 -o /dev/null"
 
 echo "Secrets & dotfiles"
 check "rbw unlocked"                   "rbw unlocked"
@@ -25,7 +25,7 @@ check "chezmoi clean"                  "test -z \"\$(chezmoi status)\""
 check "ssh config rendered"            "test -s ~/.ssh/config"
 
 echo "Toolchain"
-for b in git gh docker kubectl helm mise node bun go python code claude codex nvim; do
+for b in git gh docker kubectl helm mise node bun go python php composer code claude codex opencode herdr starship atuin yazi tv jj k9s stern argocd xh nvim wt; do
   check "$b" "command -v $b"
 done
 check "gh authenticated"               "gh auth status"

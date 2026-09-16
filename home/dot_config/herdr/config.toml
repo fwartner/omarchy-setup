@@ -1,0 +1,15 @@
+# chezmoi-managed. herdr — agent-aware multiplexer (https://herdr.dev).
+# Prefix then: Shift+n new workspace, c new tab, v / - split, w switch workspace, q detach, ? help.
+[keys]
+prefix = "ctrl+b"
+
+[theme]
+name = "catppuccin"   # swap via the Omarchy theme-set hook later
+
+[ui]
+pane_borders = true
+pane_gaps = false
+
+[update]
+version_check = false      # updates come from AUR via omarchy update
+manifest_check = true

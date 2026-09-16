@@ -1,0 +1,14 @@
+[Unit]
+Description=Full fleet update (config, system, packages, themes, repos)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/omarchy-setup/scripts/update-all.sh
+# omarchy-update runs under a pty and omarchy-update-restart calls gum confirm
+# with no unattended guard. Closing stdin turns a prompt into an immediate
+# decline instead of a timer parked forever on a question.
+StandardInput=null
+# A full update pulls packages and can rebuild DKMS modules; it is not a
+# 90-second job, and the script has its own 120m ceiling on omarchy-update.
+TimeoutStartSec=0

@@ -1,0 +1,49 @@
+# Repos every laptop keeps in sync, cloned to ~/Projects/<org>/<repo>.
+#
+#   owner/repo [pull-only]
+#
+# Default behaviour follows scripts/repo-sync.sh: clean repos fast-forward,
+# and local work is committed to wip/<hostname> and pushed so nothing lives
+# only on a laptop. `pull-only` opts a repo out of that and never writes to it.
+#
+# Blank lines and # comments are ignored. Order does not matter.
+
+# --- fleet -------------------------------------------------------------------
+fwartner/omarchy-setup
+
+# --- burrow ------------------------------------------------------------------
+fwartner/burrow
+useburrowdev/burrow-cli
+
+# --- snare -------------------------------------------------------------------
+fwartner/snare
+
+# --- scampilot ---------------------------------------------------------------
+fwartner/scampilot
+fwartner/scampilot-v2
+fwartner/scampilot-mobile
+fwartner/scampilot-certificates
+
+# --- lockwave ----------------------------------------------------------------
+Lockwave-io/lockwaved
+Lockwave-io/n8n-lockwave
+Lockwave-io/terraform-provider-lockwave
+Pixel-Process-UG/lockwave-web
+Pixel-Process-UG/lockwave-status
+
+# --- drohnenatlas ------------------------------------------------------------
+Pixel-Process-UG/drohnenatlas-api
+Pixel-Process-UG/drohnenatlas-app
+Pixel-Process-UG/drohnenatlas-de
+Pixel-Process-UG/drohnenatlas-design
+Pixel-Process-UG/drohnenatlas-flutter
+Pixel-Process-UG/drohnenatlas-kite
+Pixel-Process-UG/drohnenatlas-laravel
+Pixel-Process-UG/drohnenatlas-marketing
+
+# --- infrastructure ----------------------------------------------------------
+# ArgoCD auto-syncs this from main. A laptop must never write to it.
+Pixel-Process-UG/pixelandprocess-gitops   pull-only
+
+# sorrel: no repo by that name exists under fwartner or any org on this account,
+# and a global search found only unrelated projects. Add it here once it exists.

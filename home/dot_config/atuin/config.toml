@@ -1,0 +1,17 @@
+# chezmoi-managed. Local-only until the atuin sync server runs on the cluster (see docs/TOOLING.md backlog).
+auto_sync = false
+update_check = false
+search_mode = "fuzzy"
+filter_mode = "global"
+filter_mode_shell_up_key_binding = "session"
+style = "compact"
+inline_height = 20
+show_preview = true
+enter_accept = false
+# don't record secrets-ish commands
+history_filter = [
+  "^rbw get",
+  "^bw ",
+  "^export .*TOKEN",
+  "^export .*KEY",
+]

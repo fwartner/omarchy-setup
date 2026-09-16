@@ -80,13 +80,21 @@ step "5/9 unlock Vaultwarden (rbw)"
 ./scripts/secrets-unlock.sh
 
 step "6/9 packages"
+ROLE="$(chezmoi data | jq -r '.role // "daily"')"
+# GUI-heavy extras are skipped on spare machines (4 GB Gemini Lake etc.)
+SPARE_SKIP='^(dbeaver|telegram-desktop|bitwarden|obsidian|bruno|harlequin|posting)$'
 # pacman / Omarchy repo
-mapfile -t PKGS < <(grep -vE '^\s*(#|$)' packages/pacman.txt)
+mapfile -t PKGS < <(grep -vE '^\s*(#|$)' packages/pacman.txt | { if [ "$ROLE" = spare ]; then grep -vE "$SPARE_SKIP"; else cat; fi; })
 sudo omarchy-pkg-add "${PKGS[@]}"
 # AUR
-mapfile -t AUR < <(grep -vE '^\s*(#|$)' packages/aur.txt)
+mapfile -t AUR < <(grep -vE '^\s*(#|$)' packages/aur.txt | { if [ "$ROLE" = spare ]; then grep -vE "$SPARE_SKIP"; else cat; fi; })
 if [ "${#AUR[@]}" -gt 0 ]; then
   yay -S --needed --noconfirm "${AUR[@]}"
+fi
+# krew plugins
+if command -v kubectl-krew >/dev/null 2>&1 || [ -x "$HOME/.krew/bin/kubectl-krew" ]; then
+  export PATH="$HOME/.krew/bin:$PATH"
+  kubectl krew install ctx ns neat view-secret >/dev/null 2>&1 || true
 fi
 
 step "7/9 apply dotfiles"
@@ -106,9 +114,13 @@ if [ "${SKIP_EDITORS:-0}" != "1" ]; then
     done < "$HOME/.config/Code/User/extensions.txt"
   fi
 fi
-for lang in node bun go python php; do
+# Ghostty as the Omarchy default terminal (keeps Super+Return etc. working)
+omarchy-setup-defaults terminal ghostty 2>/dev/null || omarchy setup defaults terminal ghostty 2>/dev/null || true
+for lang in node bun go python php laravel; do
   omarchy-install-dev-env "$lang" 2>/dev/null || omarchy install dev-env "$lang" || true
 done
+# global composer bin (laravel installer)
+if have composer && ! have laravel; then composer global require laravel/installer >/dev/null 2>&1 || true; fi
 ./scripts/agents-setup.sh
 
 # The first clone of this private repo carries a PAT in the remote URL, because
@@ -121,6 +133,15 @@ SCRUBBED_ORIGIN="$(printf '%s' "$CURRENT_ORIGIN" | sed -E 's#(https://)[^@/]*@#\
 
 ./scripts/kube-setup.sh
 ./scripts/sync-setup.sh
+./scripts/repo-sync.sh || true
+
+step "8b/9 automatic updates"
+# The unit files are chezmoi-managed and landed in step 7; enabling them is the
+# one imperative bit. daemon-reload first so a changed unit is picked up.
+systemctl --user daemon-reload 2>/dev/null || true
+for t in omarchy-config-sync.timer omarchy-update-all.timer; do
+  systemctl --user enable --now "$t" 2>/dev/null && echo "enabled $t" || echo "could not enable $t"
+done
 
 step "9/9 verify"
 ./scripts/verify.sh || true
@@ -132,5 +153,8 @@ Bootstrap finished. Remaining manual steps:
   2. codex login     → log in with your OpenAI account
   3. Syncthing hub   → accept this device in the hub UI
   4. reboot          → picks up hypr overrides and shell changes
+
+Automatic updates are on: config every 30min, full update daily.
+Run one now with: ~/.local/share/omarchy-setup/scripts/update-all.sh
 Log: $LOG
 EOF

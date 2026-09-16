@@ -3,6 +3,7 @@
     email = {{ .git_email }}
 [init]
     defaultBranch = main
+    templateDir = ~/.config/git/template
 [pull]
     rebase = true
 [push]
@@ -23,6 +24,15 @@
     conflictstyle = zdiff3
 [diff]
     colorMoved = default
+    tool = difftastic
+[difftool]
+    prompt = false
+[difftool "difftastic"]
+    cmd = difft "$LOCAL" "$REMOTE"
+[alias]
+    dft = difftool
+    dlog = -c diff.external=difft log -p --ext-diff
+    absorb = absorb --and-rebase
 [credential "https://github.com"]
     helper = !gh auth git-credential
 [url "git@github.com:"]

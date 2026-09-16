@@ -1,0 +1,11 @@
+[Unit]
+Description=Pull and apply fleet dotfiles (chezmoi)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Config only: a git pull plus chezmoi apply. Cheap enough to run often, which
+# is what "the configuration must always stay up to date" actually needs.
+ExecStart=%h/.local/share/omarchy-setup/scripts/update-all.sh --config
+StandardInput=null
+TimeoutStartSec=10m

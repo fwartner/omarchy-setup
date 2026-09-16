@@ -1,10 +1,10 @@
 {{- /* Per-machine data. Asked once on `chezmoi init`, stored in ~/.config/chezmoi/chezmoi.toml */ -}}
-{{- $hostname := promptStringOnce . "hostname" "Hostname for this laptop (e.g. dell-7490)" (output "hostname" | trim) -}}
+{{- $hostname := promptStringOnce . "hostname" "Hostname for this laptop (latitude-7310 / v130-15igm)" (output "hostname" | trim) -}}
 {{- $gdk_scale := promptIntOnce . "gdk_scale" "Display scale (1 for 1080p/768p panels, 2 for HiDPI)" 1 -}}
-{{- $wifi_driver := promptChoiceOnce . "wifi_driver" "Wi-Fi driver quirk" (list "none" "broadcom") -}}
+{{- $wifi_driver := promptChoiceOnce . "wifi_driver" "Wi-Fi driver quirk (none = mainline)" (list "none" "broadcom" "rtl8821ce") -}}
 {{- $install_cursor := promptBoolOnce . "install_cursor" "Install Cursor in addition to VS Code" false -}}
 {{- $sudoless_docker := promptBoolOnce . "sudoless_docker" "Add user to docker group (sudoless docker)" false -}}
-{{- $role := promptChoiceOnce . "role" "Machine role" (list "daily" "spare") -}}
+{{- $role := promptChoiceOnce . "role" "Machine role (daily = full desktop, spare = lean agent runner)" (list "daily" "spare") -}}
 
 # ---- fleet-wide constants (edit here, not per machine) ----
 [data]

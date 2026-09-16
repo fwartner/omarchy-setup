@@ -23,7 +23,7 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
 ## 1. BIOS (2 min)
 
 - [ ] Secure Boot: off. TPM can stay, but off if the installer complains.
-- [ ] SATA/NVMe mode: AHCI (not RAID/RST on Dells).
+- [ ] SATA/NVMe mode: AHCI (**Latitude 7310 defaults to RAID/RST — change it or no disk is found**).
 - [ ] Virtualization (VT-x/AMD-V): on.
 - [ ] Boot order: USB first, or use the one-time boot menu (F12 Dell / F12 Lenovo).
 - [ ] Optional: update BIOS from the vendor site before install (or via `fwupdmgr` later).
@@ -68,6 +68,8 @@ You will be asked, in this order:
 - [ ] Reboot (Hyprland overrides, docker group, hostname).
 - [ ] `~/.local/share/omarchy-setup/scripts/verify.sh` → all green. Typical first-run reds: kubectl (kubeconfig item missing). Home Assistant is reached at `http://homeassistant.ts.pixelandprocess.de:8123` — the MagicDNS name, because mDNS does not cross the mesh.
 - [ ] Open VS Code from the Omarchy menu, theme matches Omarchy, Claude Code extension logged in.
+- [ ] `herdr` starts, sidebar shows a `claude` pane state; `wt test-task` in any repo creates a worktree and opens Claude in it (then `wt rm test-task`).
+- [ ] `atuin search`, `y` (yazi), `tv`, `gh dash`, `k9s` (read-only) all open.
 - [ ] `proj` opens the fuzzy switcher; `clone fwartner/<repo>` works.
 - [ ] `kubectl get nodes` returns the cluster. Writes must fail: `kubectl auth can-i delete pods` → `no`.
 - [ ] Obsidian opens `~/Projects/claude-obsidian` and shows the `hermes/` folder synced from the Mac.
@@ -83,12 +85,7 @@ You will be asked, in this order:
 
 ## 7. Per-model notes
 
-Keep these in `INVENTORY.md`; the runbook stays generic. Known classes:
-
-- Dell Latitude/XPS with Intel Wi-Fi: nothing special.
-- Dell with Broadcom BCM43xx: `wifi_driver = broadcom`; expect a DKMS build on every kernel update (post-update hook handles it).
-- Lenovo ThinkPad: enable "Thunderbolt BIOS Assist" off, "Linux" as OS in BIOS if offered; TrackPoint works out of the box.
-- Any 1366×768 panel: `gdk_scale = 1`, VS Code `window.zoomLevel = -1`.
+See `docs/INVENTORY.md` — Latitude 7310 (daily) and V130-15IGM (spare) each have a section with BIOS keys, Wi-Fi variants, RAM upgrade and known quirks. Any 1366×768 panel: `gdk_scale = 1`, VS Code `window.zoomLevel = -1`.
 
 ## 8. Maintenance (recurring)
 

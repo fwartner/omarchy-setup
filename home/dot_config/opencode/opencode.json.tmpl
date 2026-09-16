@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "freellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "FreeLLM (llm.intern)",
+      "options": {
+        "baseURL": "{{ .freellm_url }}/v1"
+      },
+      "models": {
+        "default": { "name": "gateway default" }
+      }
+    }
+  },
+  "model": "freellm/default",
+  "autoupdate": false,
+  "mcp": {
+    "context7": { "type": "remote", "url": "https://mcp.context7.com/mcp" }
+  }
+}

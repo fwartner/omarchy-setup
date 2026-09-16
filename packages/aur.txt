@@ -1,3 +1,16 @@
-# AUR packages (installed via yay). Keep this short — every AUR package is a build on every laptop.
-krew-bin
+# AUR packages (installed via yay). Every AUR package is a build on every laptop — prefer -bin where it exists.
+herdr
+opencode-bin
+gh-dash
+kubectl-cnpg
+lazysql
+harlequin
+usql
+posting
+mdcat
+slides
+commitlint
+sentry-cli-bin
+python-homeassistant-cli
+bruno
 # broadcom-wl-dkms is installed conditionally by chezmoi's run_once script, not here
