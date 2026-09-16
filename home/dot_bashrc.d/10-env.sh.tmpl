@@ -48,5 +48,5 @@ export DIRENV_LOG_FORMAT=""
 # errors.intern ingress sits behind the Pocket ID forward-auth middleware
 # (glitchtip-pocketid-glitchtip@kubernetescrd), which is interactive SSO. A CLI
 # holding a bearer token gets 401 from the proxy before GlitchTip ever sees the
-# request. errors.example.com answers /api/0/ directly.
-export SENTRY_URL="${SENTRY_URL:-https://errors.example.com}"
+# request. The public host answers /api/0/ directly, so that is what this is.
+export SENTRY_URL="${SENTRY_URL:-{{ .sentry_url }}}"

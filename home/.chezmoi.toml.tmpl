@@ -25,6 +25,7 @@
 {{- $freellm_url := promptStringOnce . "freellm_url" "LLM gateway URL (optional)" "https://llm.example.com" -}}
 {{- $affine_url := promptStringOnce . "affine_url" "AFFiNE URL (optional)" "https://notes.example.com" -}}
 {{- $ha_url := promptStringOnce . "ha_url" "Home Assistant URL (optional)" "http://homeassistant.example.com:8123" -}}
+{{- $sentry_url := promptStringOnce . "sentry_url" "GlitchTip/Sentry URL (optional; must be the public host, not the SSO-protected one)" "https://errors.example.com" -}}
 
 # Everything here is answered once and then stored. Nothing in this file is a
 # hardcoded value a re-init can overwrite: that is what cost a laptop its whole
@@ -50,6 +51,7 @@
     freellm_url     = {{ $freellm_url | quote }}
     affine_url      = {{ $affine_url | quote }}
     ha_url          = {{ $ha_url | quote }}
+    sentry_url      = {{ $sentry_url | quote }}
 
 [edit]
     command = "nvim"
