@@ -14,6 +14,8 @@ A template. Fork it, change a dozen values, run `bootstrap.sh` on a laptop.
 - **Packages** come from two plain-text manifests, filtered per machine role
 - **restic** backs up nightly to S3-compatible storage, with retries
 - **Repo sync** keeps the projects you actually work on cloned and current
+- **Tunnels** via [Burrow](https://useburrow.dev) — `tunnel http 3000` exposes a
+  local port over HTTPS
 - **Automatic updates**: config every 30 min, everything else daily, via systemd
   user timers
 

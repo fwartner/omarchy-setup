@@ -95,3 +95,12 @@ Omarchy 4.0.4 · Hyprland (Lua config) · Neovim 0.12.5 · chezmoi 2.72.2 · rbw
 - atuin sync server on the cluster (`apps/internal/atuin` in gitops) — then `atuin login` in bootstrap.
 - ntfy on the cluster + Claude Code `Stop`/`Notification` hooks → phone.
 - k9s / Ghostty / gh-dash theme follow Omarchy `theme-set` hook.
+
+## Tunnels
+
+Burrow (https://useburrow.dev/docs) is the default for exposing a local port:
+`tunnel http 3000`, or `tunnel 3000` for the http shorthand. Run via `npx -y
+useburrow`, not installed — the client is Node-native and versioned per
+invocation, so there is no package to keep in step with the service. It also
+ships an MCP server, which is worth wiring into `scripts/agents-setup.sh` if you
+want agents driving tunnels.
