@@ -11,6 +11,10 @@ slides
 commitlint
 sentry-cli-bin
 python-homeassistant-cli
-bruno
+# bruno is deliberately absent. The AUR source package depends on electron37,
+# which is not a repo binary, so yay builds Electron and the Chromium source
+# tree with it -- hours and several GB on a laptop, for an API client. bruno-bin
+# avoids that, but the tool is not worth the dependency either way: `posting`
+# (already here) is a TUI API client, and `xh` covers one-off HTTP from the shell.
 # broadcom-wl-dkms is installed conditionally by chezmoi's run_once script, not here
 # herdr and localsend are in omarchy-base.packages, so they are not listed here.

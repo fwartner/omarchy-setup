@@ -45,7 +45,7 @@ Decided 2026-09-16 over four rounds. Versions are what installs today (Arch `ext
 | **posting** | AUR 2.10.0 | Postman-style, YAML collections in `~/Projects/<repo>/.posting/`. |
 | **atac** | extra 0.23.1 | lighter HTTP TUI. |
 | **xh**, jq, **yq** (go-yq), **fx** | extra 0.26.2 / 1.8.2 / 4.53.3 / 39.2.0 | |
-| DBeaver, Bruno | extra 26.2.0 / AUR `bruno` 4.1.0 | GUIs for when a screen is better. |
+| DBeaver | extra 26.2.0 | GUI for when a screen is better. Bruno was dropped: its AUR package builds Electron from source. `posting` covers API work in the terminal. |
 
 ## Laravel / PHP / JS stack (full)
 
@@ -80,7 +80,7 @@ Obsidian (Syncthing vault, shared with Hermes), **glow** 3.0.0, **mdcat** AUR 2.
 
 ## Desktop
 
-Bitwarden desktop (extra 2026.3.1, pointed at `secrets.intern`) + browser extension (manual, Chromium web store), Telegram Desktop (extra 7.2.8), DBeaver, Bruno. Everything else from Omarchy's own menu.
+Bitwarden desktop (extra 2026.3.1, pointed at `secrets.intern`) + browser extension (manual, Chromium web store), Telegram Desktop (extra 7.2.8), DBeaver. Everything else from Omarchy's own menu.
 
 ## Ops from the laptop
 

@@ -18,7 +18,7 @@ MANIFEST_DIR="${MANIFEST_DIR:-$SELF_DIR/../packages}"
 # in our manifest would not keep it off a spare laptop.
 # jre-openjdk rides along with dbeaver -- it is the only thing that needs it -- so
 # a spare machine gets neither rather than a JRE with nothing to run.
-SPARE_SKIP='^(dbeaver|jre-openjdk|telegram-desktop|bitwarden|bruno|harlequin|posting)$'
+SPARE_SKIP='^(dbeaver|jre-openjdk|telegram-desktop|bitwarden|harlequin|posting)$'
 
 role() {
   [ -n "${ROLE:-}" ] && { printf '%s\n' "$ROLE"; return; }
