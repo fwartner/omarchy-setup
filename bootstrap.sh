@@ -55,7 +55,32 @@ sudo omarchy-pkg-add chezmoi rbw git jq fzf ripgrep fd pinentry
 
 step "2/9 clone/update repo"
 if [ -d "$REPO_DIR/.git" ]; then
-  git -C "$REPO_DIR" pull --ff-only
+  # Not `git pull --ff-only`: a checkout from before this repo's history was
+  # rewritten has no common ancestor with origin, and the pull aborts with
+  # "Not possible to fast-forward" -- fatal here under `set -e`, on exactly
+  # the machine that needs repairing.
+  #
+  # scripts/self-update.sh does the repair, but such a checkout predates it
+  # too, so it is read out of what was just fetched rather than off disk.
+  # bootstrap.sh is re-downloaded on every curl|bash run; the checkout is not.
+  git -C "$REPO_DIR" fetch --quiet --prune origin \
+    || echo "could not reach origin; using the checkout as it is"
+  SELF_UPDATE="$(mktemp)"
+  # Not `git symbolic-ref refs/remotes/origin/HEAD | sed`: that ref does not
+  # always exist, symbolic-ref then exits 128, `pipefail` carries it past sed,
+  # and `set -e` ends the run right here -- with nothing printed, because the
+  # error went to /dev/null. Ask the checkout what branch it is on instead.
+  BRANCH="$(git -C "$REPO_DIR" symbolic-ref --short HEAD 2>/dev/null || true)"
+  if git -C "$REPO_DIR" show "origin/${BRANCH:-main}:scripts/self-update.sh" > "$SELF_UPDATE" 2>/dev/null; then
+    bash "$SELF_UPDATE" "$REPO_DIR" || STALE=1
+  else
+    git -C "$REPO_DIR" pull --ff-only || STALE=1
+  fi
+  # Not fatal. A laptop with no network, or one whose worktree self-update.sh
+  # refused to reset, should still get its dotfiles and packages applied from
+  # the checkout it already has.
+  [ "${STALE:-0}" = "1" ] && echo "continuing with $REPO_DIR at its current commit"
+  rm -f "$SELF_UPDATE"
 else
   # The repo is private and the vault cannot help yet: rbw is configured from
   # data that lives in this repo, so the token for the very first clone has to

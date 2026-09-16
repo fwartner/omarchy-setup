@@ -28,6 +28,10 @@ MARKER="$TMP/home/.local/state/omarchy-setup-bootstrapped"
 
 # --- a checkout shaped like a bootstrapped machine's ------------------------
 git init -q --bare "$TMP/origin.git"
+# The runner's init.defaultBranch is master, so a bare repo's HEAD points at
+# refs/heads/master while the fixture only ever creates main -- the clone then
+# lands on an unborn branch with no upstream. Pin it rather than inherit it.
+git -C "$TMP/origin.git" symbolic-ref HEAD refs/heads/main
 git clone -q "$TMP/origin.git" "$TMP/repo" 2>/dev/null
 git -C "$TMP/repo" checkout -q -b main 2>/dev/null || true
 mkdir -p "$TMP/repo/scripts"
@@ -38,6 +42,16 @@ done
 git -C "$TMP/repo" add -A
 git -C "$TMP/repo" -c user.email=t@t -c user.name=t commit -qm init
 git -C "$TMP/repo" push -q -u origin main
+# git sets refs/remotes/origin/HEAD on clone or fetch depending on version and
+# on whether the remote had a HEAD at the time. Delete it so every machine
+# exercises the branch that does not have it: reading it with symbolic-ref used
+# to exit 128 and, through pipefail and set -e, kill bootstrap at step 2/9 with
+# no output at all. CI hit that; a newer local git did not.
+git -C "$TMP/repo" symbolic-ref -d refs/remotes/origin/HEAD 2>/dev/null || true
+# Deleting the local copy is not enough: `git fetch` recreates it from the
+# remote's HEAD. Drop it on the origin too, so the ref genuinely cannot be
+# resolved -- which is the state a bare mirror or a detached remote leaves.
+git -C "$TMP/origin.git" symbolic-ref -d HEAD 2>/dev/null || true
 
 # --- shims for everything steps 0-2 reach for -------------------------------
 mkdir -p "$TMP/bin"
@@ -57,14 +71,21 @@ chmod +x "$TMP/bin"/*
 FAKE_PATH="$TMP/bin:/usr/bin:/bin"
 
 ARGS=()
+RUN_N=0
 run() {
   : > "$TMP/calls"
+  RUN_N=$((RUN_N + 1))
   # Redirected to a file, not captured in $( ): the sudo keep-alive subshell
   # inherits stdout and outlives the script, so a command substitution would
   # block on it for the length of its sleep.
   env -i HOME="$TMP/home" PATH="$FAKE_PATH" REPO_DIR="$TMP/repo" "$@" \
     "${BASH:-/bin/bash}" "$SCRIPT" ${ARGS[@]+"${ARGS[@]}"} > "$TMP/out" 2>&1
-  echo "$?"
+  local rc=$?
+  # Kept so a failure here is diagnosable from a CI log, which is the only
+  # place some of these differences show up.
+  { printf '\n--- run %d (rc=%d, args: %s) ---\n' "$RUN_N" "$rc" "${ARGS[*]:-none}"
+    cat "$TMP/out"; } >> "$TMP/transcript"
+  echo "$rc"
 }
 
 echo "no marker: installs"
@@ -99,12 +120,32 @@ run >/dev/null
 eq "installed anyway"     "$(grep -c 'chezmoi init' "$TMP/calls")"     "1"
 eq "did not delegate"     "$(grep -c 'update-all ran' "$TMP/calls")"   "0"
 
+echo "an unreachable origin is not fatal"
+# Also the only way to pin refs/remotes/origin/HEAD absent: a successful fetch
+# re-guesses it. Reading that ref with `symbolic-ref | sed` exits 128, pipefail
+# carries it past sed, and set -e ended the run here with nothing printed.
+ARGS=()
+mv "$TMP/origin.git" "$TMP/origin.gone"
+git -C "$TMP/repo" symbolic-ref -d refs/remotes/origin/HEAD 2>/dev/null || true
+RC="$(run)"
+eq "exit 0"               "$RC"                                        "0"
+eq "said origin was down" "$(grep -c 'could not reach origin' "$TMP/out")" "1"
+eq "still delegated"      "$(grep -c 'update-all ran' "$TMP/calls")"   "1"
+mv "$TMP/origin.gone" "$TMP/origin.git"
+
 echo "FULL_BOOTSTRAP=1 is the same switch"
 # Documented alongside the other overrides, and the only form that survives
 # `curl ... | bash`, which has nowhere to put an argument.
 ARGS=()
 run FULL_BOOTSTRAP=1 >/dev/null
 eq "installed anyway"     "$(grep -c 'chezmoi init' "$TMP/calls")"     "1"
+
+if [ "$fail" -gt 0 ]; then
+  echo
+  echo "=== git $(git --version | awk '{print $3}'), bash ${BASH_VERSION%%(*} ==="
+  echo "=== what bootstrap.sh actually printed ==="
+  cat "$TMP/transcript"
+fi
 
 echo
 echo "$pass passed, $fail failed"
