@@ -1,0 +1,29 @@
+# shellcheck shell=bash
+# Projects live in ~/Projects/<org>/<repo>. `proj` fuzzy-jumps, `clone` fetches by gh slug.
+PROJECTS_ROOT="$HOME/Projects"
+
+proj-path() {
+  find "$PROJECTS_ROOT" -mindepth 2 -maxdepth 2 -type d 2>/dev/null \
+    | sed "s|$PROJECTS_ROOT/||" \
+    | fzf --prompt='project> ' --height=40% --reverse \
+    | sed "s|^|$PROJECTS_ROOT/|"
+}
+
+proj() {
+  local p
+  p="$(proj-path)" || return
+  [ -n "$p" ] && cd "$p" || return
+}
+
+# clone your-org/foo or your-github-user/foo into ~/Projects/<org>/<repo>
+clone() {
+  local slug="$1"
+  local org="${slug%%/*}" repo="${slug##*/}"
+  mkdir -p "$PROJECTS_ROOT/$org"
+  gh repo clone "$slug" "$PROJECTS_ROOT/$org/$repo" && cd "$PROJECTS_ROOT/$org/$repo" || return
+}
+
+# start Claude Code with the FreeLLM gateway for cheap jobs:  cc-cheap
+cc-cheap() {
+  ANTHROPIC_BASE_URL="{{ .freellm_url }}" claude "$@"
+}

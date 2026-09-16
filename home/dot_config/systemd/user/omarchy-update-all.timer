@@ -1,0 +1,12 @@
+[Unit]
+Description=Full fleet update, daily
+
+[Timer]
+OnCalendar=daily
+# Laptops are not all awake at the same moment, and this hits the AUR and
+# GitHub; spread the fleet out rather than stampeding.
+RandomizedDelaySec=2h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

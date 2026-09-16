@@ -1,0 +1,19 @@
+# Repos every laptop keeps in sync, cloned to ~/Projects/<org>/<repo>.
+#
+#   owner/repo [pull-only]
+#
+# Default behaviour (scripts/repo-sync.sh): clean repos fast-forward, and local
+# work is committed to wip/<hostname> and pushed so nothing lives only on a
+# laptop that can be lost. `pull-only` opts a repo out of that and never writes
+# to it -- use it for anything a CD system watches, where a stray branch from a
+# laptop would be noise at best.
+#
+# Blank lines and # comments are ignored. Order does not matter.
+#
+# This file ships empty on purpose: repo-sync.sh is a no-op until you add your
+# own. Replace the examples below.
+
+# your-github-user/dotfiles
+# your-org/api
+# your-org/web
+# your-org/infra-gitops   pull-only

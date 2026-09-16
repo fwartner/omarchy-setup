@@ -1,0 +1,30 @@
+# chezmoi-managed. PR/issue dashboard across the orgs; `gh dash`.
+prSections:
+  - title: Needs my review
+    filters: is:open review-requested:@me
+  - title: Mine
+    filters: is:open author:@me
+  - title: Agent PRs
+    filters: is:open org:your-org org:formspring-io user:your-github-user label:agent
+  - title: All P&P
+    filters: is:open org:your-org
+issuesSections:
+  - title: Assigned
+    filters: is:open assignee:@me
+  - title: Created
+    filters: is:open author:@me
+defaults:
+  view: prs
+  refetchIntervalMinutes: 5
+  prsLimit: 30
+  preview:
+    open: true
+    width: 60
+keybindings:
+  prs:
+    - key: C
+      command: >
+        cd ~/Projects/{{ .RepoName }} 2>/dev/null || clone {{ .RepoNameWithOwner }}; gh pr checkout {{ .PrNumber }}
+theme:
+  ui:
+    sectionsShowCount: true

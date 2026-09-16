@@ -1,0 +1,13 @@
+# Fleet-wide runtime versions, copied to ~/.config/mise/config.toml by chezmoi.
+[tools]
+node = "lts"
+bun = "latest"
+go = "latest"
+python = "3.13"
+# php comes from pacman via `omarchy install dev-env php` (needs system extensions)
+# herdr comes from AUR; uncomment if AUR lags a release:
+# herdr = "latest"
+
+[settings]
+experimental = true
+legacy_version_file = true

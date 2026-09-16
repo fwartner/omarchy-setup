@@ -1,0 +1,42 @@
+{{- /* Per-machine data. Asked once on `chezmoi init`, stored in ~/.config/chezmoi/chezmoi.toml */ -}}
+{{- $hostname := promptStringOnce . "hostname" "Hostname for this laptop" (output "hostname" | trim) -}}
+{{- $gdk_scale := promptIntOnce . "gdk_scale" "Display scale (1 for 1080p/768p panels, 2 for HiDPI)" 1 -}}
+{{- $wifi_driver := promptChoiceOnce . "wifi_driver" "Wi-Fi driver quirk (none = mainline)" (list "none" "broadcom" "rtl8821ce") -}}
+{{- $install_cursor := promptBoolOnce . "install_cursor" "Install Cursor in addition to VS Code" false -}}
+{{- /* Kept for machines initialised before the podman switch; podman is rootless, so this no longer does anything. */ -}}
+{{- $sudoless_docker := promptBoolOnce . "sudoless_docker" "Legacy docker group opt-in (podman is rootless; answer false)" false -}}
+{{- $role := promptChoiceOnce . "role" "Machine role (daily = full desktop, spare = lean agent runner)" (list "daily" "spare") -}}
+
+# ---- fleet-wide constants ----
+#
+# EDIT THESE BEFORE FIRST USE. Everything below is example.com and will not
+# resolve. They are constants rather than prompts because every machine in a
+# fleet shares them -- you set them once, here, and they are the same on all of
+# them. The prompts above are the things that genuinely differ per laptop.
+#
+# vault_url is the only one bootstrap cannot continue without: it is where rbw
+# looks for the secrets the chezmoi templates render from.
+[data]
+    hostname        = {{ $hostname | quote }}
+    gdk_scale       = {{ $gdk_scale }}
+    wifi_driver     = {{ $wifi_driver | quote }}
+    install_cursor  = {{ $install_cursor }}
+    sudoless_docker = {{ $sudoless_docker }}
+    role            = {{ $role | quote }}
+
+    headscale_url   = "https://headscale.example.com"          # from infra-gitops apps/internal/headscale
+    vault_url       = "https://vault.intern.example.com"    # Vaultwarden (infra-gitops apps/internal/vaultwarden)
+    vault_email     = "you@example.com"
+    git_name        = "Your Name"
+    git_email       = "you@example.com"
+    github_user     = "your-github-user"
+    freellm_url     = "https://llm.intern.example.com"
+    affine_url      = "https://notes.intern.example.com"
+    ha_url          = "http://homeassistant.ts.example.com:8123"   # MagicDNS name (baseDomain ts.example.com); mDNS does not cross the mesh
+
+[edit]
+    command = "nvim"
+
+[diff]
+    command = "delta"
+    pager   = "delta"

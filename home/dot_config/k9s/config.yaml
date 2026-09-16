@@ -1,0 +1,20 @@
+# chezmoi-managed. Read-only by default on the laptops (kubeconfig is a view-only SA anyway).
+k9s:
+  liveViewAutoRefresh: true
+  refreshRate: 2
+  maxConnRetry: 5
+  readOnly: true
+  noExitOnCtrlC: false
+  ui:
+    enableMouse: false
+    headless: false
+    logoless: true
+    crumbsless: false
+    noIcons: false
+  skipLatestRevCheck: true
+  logger:
+    tail: 200
+    buffer: 5000
+    sinceSeconds: 300
+    textWrap: false
+    showTime: false

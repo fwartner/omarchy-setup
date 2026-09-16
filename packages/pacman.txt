@@ -1,0 +1,100 @@
+# Arch / Omarchy repo packages (installed via omarchy-pkg-add). One per line.
+# Omarchy's own install/omarchy-base.packages (150 entries) is installed on every
+# machine, so nothing from it is repeated here. Checked with:
+#   comm -12 <(./scripts/pkglist.sh pacman|sort -u) <(omarchy base+other packages)
+# Name equality is not enough on its own. tealdeer/tldr collide through
+# `conflicts`, and mise/mise-bin are the same tool packaged twice -- both abort
+# the entire transaction. Check for -bin and -git variants of every name too.
+# --- shell & terminal
+chezmoi
+rbw
+pinentry
+ghostty
+atuin
+yazi
+television
+gitui
+git-delta
+difftastic
+go-yq
+fx
+htop
+ncdu
+tree
+zip
+rsync
+wget
+curl
+openssh
+just
+hyperfine
+tokei
+dust
+duf
+procs
+sd
+typos
+# tealdeer is NOT here: it conflicts with `tldr`, which omarchy-base installs on
+# every machine, and pacman aborts the whole transaction rather than choosing.
+# The name-overlap check in this file's header cannot catch that -- the packages
+# have different names and only collide through `conflicts`/`provides`.
+glow
+zk
+# --- git workflow
+github-cli
+jujutsu
+pre-commit
+gitleaks
+git-absorb
+git-branchless
+# --- dev
+podman
+podman-compose
+# podman-docker is deliberately NOT here: it declares `conflicts: [docker]`, and
+# omarchy-base installs `docker` on every machine, so pacman would refuse the
+# transaction mid-bootstrap. 50-containers.sh aliases `docker` to podman instead,
+# which gets the same muscle memory with no package conflict.
+buildah
+# mise is NOT here: omarchy-base installs `mise-bin`, which declares a conflict
+# with the repo `mise`, so listing it aborts the whole pacman transaction.
+# Omarchy also owns mise's updates via omarchy-update-mise, which `omarchy
+# update` runs, so there is nothing for us to add.
+shellcheck
+xh
+pgcli
+valkey
+atac
+# --- kubernetes / infra (clients)
+kubectl
+helm
+k9s
+kubectx
+stern
+argocd
+velero
+krew
+hcloud
+opentofu
+terraform
+aws-cli-v2
+logcli
+lsof
+# --- mesh, sync, backup
+tailscale
+syncthing
+restic
+# --- hardware / laptop
+fwupd
+# --- network diagnostics
+gping
+trippy
+bandwhich
+dog
+# --- gui
+bitwarden
+telegram-desktop
+# dbeaver needs java-runtime>=21, which has six providers. Without naming one,
+# pacman stops and asks -- fatal in a bootstrap nobody is watching. Pinning the
+# JRE here makes the dependency unambiguous.
+jre-openjdk
+dbeaver

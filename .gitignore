@@ -1,0 +1,16 @@
+# never commit secrets or rendered state
+*.key
+*.pem
+id_ed25519*
+!home/private_dot_ssh/*.tmpl
+.env
+*.local
+# chezmoi state / local overrides
+home/.chezmoistate.boltdb
+# editor / os noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+# scratch
+tmp/

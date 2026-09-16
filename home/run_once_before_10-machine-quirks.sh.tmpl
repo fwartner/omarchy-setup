@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# chezmoi run_once: machine-specific one-time setup, before dotfiles are applied.
+set -euo pipefail
+
+# hostname
+if [ "$(hostnamectl --static)" != {{ .hostname | quote }} ]; then
+  sudo hostnamectl set-hostname {{ .hostname | quote }}
+fi
+
+{{ if eq .wifi_driver "broadcom" -}}
+# Broadcom Wi-Fi: Arch dropped prebuilt broadcom-wl; Omarchy 4.0.3+ uses DKMS.
+if ! pacman -Q broadcom-wl-dkms >/dev/null 2>&1; then
+  sudo omarchy-pkg-add dkms linux-omarchy-headers broadcom-wl-dkms 2>/dev/null \
+    || sudo omarchy-pkg-add dkms linux-headers broadcom-wl-dkms
+fi
+{{- end }}
+
+{{ if eq .wifi_driver "rtl8821ce" -}}
+# Realtek RTL8821CE that drops with mainline rtw88: out-of-tree module + ASPM workaround.
+if ! pacman -Q rtl8821ce-dkms-git >/dev/null 2>&1; then
+  sudo omarchy-pkg-add dkms linux-omarchy-headers 2>/dev/null || sudo omarchy-pkg-add dkms linux-headers
+  yay -S --needed --noconfirm rtl8821ce-dkms-git
+  printf 'blacklist rtw88_8821ce\nblacklist rtw_8821ce\n' | sudo tee /etc/modprobe.d/rtl8821ce.conf >/dev/null
+  # Omarchy has no kernel-cmdline helper -- checked against omacom/omarchy bin/,
+  # where the only bootloader command is omarchy-refresh-limine, which *resets*
+  # limine.conf from the default. Editing the cmdline from a run_once script
+  # would be overwritten by the next refresh, so this stays a deliberate manual
+  # step rather than a call that silently does nothing.
+  echo "NOTE: add pcie_aspm.policy=performance to the kernel cmdline by hand (see docs/INVENTORY.md)"
+fi
+{{- end }}
+
+{{ if .sudoless_docker -}}
+# Kept only so an existing chezmoi.toml carrying sudoless_docker = true does not
+# silently change meaning. Podman is rootless natively: there is no group to join.
+echo "NOTE: sudoless_docker is set, but this fleet runs podman, which is rootless by default. Nothing to do."
+{{- end }}
+
+# Podman needs no daemon. The socket exists only for tools that speak the Docker
+# API (lazydocker, testcontainers, the VS Code extension), and it is a *user*
+# unit because running rootless is the whole point of the switch.
+systemctl --user enable --now podman.socket 2>/dev/null || true
+
+# global git hooks template (gitleaks via pre-commit in every new clone)
+mkdir -p "$HOME/.config/git/template/hooks"
+
+# ~/.bashrc sources our snippets (Omarchy never overwrites ~/.bashrc)
+if ! grep -q 'bashrc.d' "$HOME/.bashrc" 2>/dev/null; then
+  cat >> "$HOME/.bashrc" <<'EOF'
+
+# --- omarchy-setup: personal snippets ---
+for f in "$HOME"/.bashrc.d/*.sh; do [ -r "$f" ] && . "$f"; done
+EOF
+fi

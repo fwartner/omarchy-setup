@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# wt — worktree-per-task helper.
+#   wt <task>            create ../<repo>.wt/<task> on branch <task>, open a herdr workspace, start claude
+#   wt <task> --codex    same, but start codex
+#   wt ls                list worktrees
+#   wt rm <task>         remove worktree + branch (asks)
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "not in a git repo" >&2; exit 1; }
+repo="$(basename "$repo_root")"
+wt_base="$(dirname "$repo_root")/${repo}.wt"
+
+case "${1:-}" in
+  ls|"")
+    git -C "$repo_root" worktree list ;;
+  rm)
+    task="${2:?task}"; path="$wt_base/$task"
+    read -rp "remove worktree $path and branch $task? [y/N] " a; [ "$a" = y ] || exit 0
+    git -C "$repo_root" worktree remove --force "$path"
+    git -C "$repo_root" branch -D "$task" || true ;;
+  *)
+    task="$1"; agent="claude"; [ "${2:-}" = "--codex" ] && agent="codex"
+    path="$wt_base/$task"
+    mkdir -p "$wt_base"
+    if [ ! -d "$path" ]; then
+      base="$(git -C "$repo_root" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|origin/||' || echo main)"
+      git -C "$repo_root" worktree add -b "$task" "$path" "origin/$base" 2>/dev/null \
+        || git -C "$repo_root" worktree add -b "$task" "$path"
+      # shared, untracked env files
+      for f in .env .env.local; do [ -f "$repo_root/$f" ] && cp -n "$repo_root/$f" "$path/$f"; done
+    fi
+    # Verified against herdr 0.9.0: the subcommand is `create`, not `new`; the
+    # name is --label rather than positional; and there is no `--` form to launch
+    # a command, so the agent is started in the worktree either way.
+    if command -v herdr >/dev/null && [ -n "${HERDR_SESSION:-}${HERDR:-}" ]; then
+      herdr workspace create --cwd "$path" --label "$repo/$task" --focus >/dev/null 2>&1 || true
+    fi
+    cd "$path" && exec "$agent" ;;
+esac
