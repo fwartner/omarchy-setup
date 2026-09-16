@@ -1,4 +1,4 @@
-.PHONY: lint apply diff update verify vaultwarden-diff
+.PHONY: lint apply diff update verify
 
 lint:            ## shellcheck + syntax
 	@for f in bootstrap.sh scripts/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do bash -n $$f; done
@@ -16,5 +16,3 @@ update:          ## git pull + apply (what the post-update hook does)
 verify:          ## post-install checks
 	./scripts/verify.sh
 
-vaultwarden-diff: ## preview cluster changes
-	kubectl diff -k infra/vaultwarden || true

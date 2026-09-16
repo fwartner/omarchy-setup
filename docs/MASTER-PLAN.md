@@ -95,7 +95,7 @@ Layers, bottom to top:
 
 ### Phase 0 — Inventory and prep (½ day, on the Mac)
 
-- **Deploy Vaultwarden to the shared cluster first** (`infra/vaultwarden/`, hostname `secrets.intern.pixelandprocess.de` — rename if you prefer another). Nothing else in the bootstrap works without it. Create your account, disable signups, test with `rbw` from the Mac, put the SQLite data dir into the cluster's PVC backup.
+- **Deploy Vaultwarden to the shared cluster first** — it lives in `pixelandprocess-gitops` as `apps/internal/vaultwarden` (branch `feat/vaultwarden`), hostname `secrets.intern.pixelandprocess.de`. Nothing else in the bootstrap works without it. Create your account, disable signups, test with `rbw` from the Mac, put the SQLite data dir into the cluster's PVC backup.
 - Inventory each laptop: model, CPU, RAM, disk, Wi-Fi chipset (`lspci`/`lsusb` from any live USB), panel resolution. Record in `docs/INVENTORY.md`.
 - BIOS: update via vendor tool or LVFS later; disable Secure Boot; set SATA/NVMe to AHCI; enable virtualization.
 - Headscale: create a user `florian`, an ACL tag `tag:laptop`, and one reusable pre-auth key per laptop (short expiry). Store keys in Vaultwarden.
@@ -145,7 +145,7 @@ All are asked once by `.chezmoi.toml.tmpl` on first `chezmoi init` and stored in
 
 - Old Wi-Fi chipsets (Broadcom on some Dells): Arch dropped the prebuilt module; Omarchy 4.0.3 moved to DKMS. DKMS rebuilds on every kernel update — keep a USB Ethernet adapter in the drawer for the first boot.
 - Custom `linux-omarchy` kernel: good for old hardware, but if a laptop misbehaves, the bootloader still offers the stock `linux` entry and Btrfs snapshots.
-- Vault availability: Vaultwarden does not exist yet; it goes onto the shared cluster as step one (`infra/vaultwarden/`). Bootstrap joins Headscale first (pre-auth key is the only pasted secret) and only then talks to `secrets.intern`, so the vault can stay mesh-only.
+- Vault availability: Vaultwarden does not exist yet; it goes onto the shared cluster as step one (`pixelandprocess-gitops/apps/internal/vaultwarden`). Bootstrap joins Headscale first (pre-auth key is the only pasted secret) and only then talks to `secrets.intern`, so the vault can stay mesh-only.
 - Claude/Codex subscription logins are device-bound OAuth; they cannot come from the vault. Plan one interactive login per laptop per tool.
 - HiDPI assumption: Omarchy defaults to 2x scaling. On 1366×768 / 1080p 13–14" panels set `gdk_scale = 1` or everything is enormous.
 - `omarchy reinstall` overwrites user config — never run it; use `omarchy reinstall configs` then `chezmoi apply`.
@@ -165,7 +165,6 @@ Everything else is `bootstrap.sh`.
 ```
 omarchy-setup/
 ├── bootstrap.sh                 one-shot: fresh Omarchy → workstation
-├── infra/vaultwarden/           kustomize manifests for the cluster (Phase 0)
 ├── docs/
 │   ├── MASTER-PLAN.md           this file
 │   ├── RUNBOOK.md               per-laptop checklist + secrets list

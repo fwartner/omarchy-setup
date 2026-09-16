@@ -1,5 +1,7 @@
 # Prompt for Claude Code — deploy Vaultwarden to the shared cluster
 
+> Superseded: the chart now exists in `pixelandprocess-gitops` as `apps/internal/vaultwarden` (branch `feat/vaultwarden`). Use this prompt only if you want Claude Code to review/finish that branch rather than start from scratch.
+
 Run Claude Code inside your `pixelandprocess-gitops` checkout on the Mac (kubectl context pointing at the shared cluster), then paste everything below the line.
 
 ---

@@ -4,7 +4,7 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
 
 ## 0. Before touching the laptop (Mac)
 
-- [ ] Vaultwarden is live at `https://secrets.intern.pixelandprocess.de` and `rbw list` works from the Mac (see `infra/vaultwarden/README.md`).
+- [ ] Vaultwarden is live at `https://secrets.intern.pixelandprocess.de` and `rbw list` works from the Mac (see `apps/internal/vaultwarden/README.md` in pixelandprocess-gitops).
 - [ ] All vault items from §Secrets below exist.
 - [ ] Headscale: `headscale users list` shows `florian`; ACL has `tag:laptop`; create a key:
       `headscale preauthkeys create --user florian --reusable --expiration 24h --tags tag:laptop`
