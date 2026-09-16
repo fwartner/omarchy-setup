@@ -91,6 +91,15 @@ for lang in node bun go python php; do
   omarchy-install-dev-env "$lang" 2>/dev/null || omarchy install dev-env "$lang" || true
 done
 ./scripts/agents-setup.sh
+
+# The first clone of this private repo carries a PAT in the remote URL, because
+# gh is not authenticated yet at that point. git stores that URL verbatim in
+# .git/config, so the token would sit in plaintext on a machine that travels.
+# agents-setup.sh has just run `gh auth setup-git`, so pulls work without it.
+CURRENT_ORIGIN="$(git -C "$REPO_DIR" remote get-url origin)"
+SCRUBBED_ORIGIN="$(printf '%s' "$CURRENT_ORIGIN" | sed -E 's#(https://)[^@/]*@#\1#')"
+[ "$CURRENT_ORIGIN" != "$SCRUBBED_ORIGIN" ] && git -C "$REPO_DIR" remote set-url origin "$SCRUBBED_ORIGIN"
+
 ./scripts/kube-setup.sh
 ./scripts/sync-setup.sh
 
