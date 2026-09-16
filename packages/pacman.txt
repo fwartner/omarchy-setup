@@ -1,22 +1,23 @@
 # Arch / Omarchy repo packages (installed via omarchy-pkg-add). One per line.
-# --- shell & cli
+# Omarchy already ships: fzf ripgrep fd bat eza zoxide btop lazygit lazydocker impala bluetui wiremix neovim.
+# --- shell & terminal
 chezmoi
 rbw
 pinentry
-git
+starship
+ghostty
+atuin
+yazi
+television
+gitui
 git-delta
-lazygit
+difftastic
+git
 jq
-yq
-fzf
-ripgrep
-fd
-bat
-eza
-zoxide
+go-yq
+fx
 tmux
 htop
-btop
 ncdu
 tree
 unzip
@@ -25,20 +26,49 @@ rsync
 wget
 curl
 openssh
+just
+hyperfine
+tokei
+dust
+duf
+procs
+sd
+typos
+fastfetch
+tealdeer
+glow
+zk
+# --- git workflow
+github-cli
+jujutsu
+pre-commit
+gitleaks
+git-absorb
+git-branchless
 # --- dev
 docker
 docker-compose
 docker-buildx
-github-cli
+mise
+shellcheck
+xh
+pgcli
+valkey
+atac
+# --- kubernetes / infra (clients)
 kubectl
 helm
 k9s
 kubectx
+stern
+argocd
+velero
+krew
+hcloud
+opentofu
 terraform
 awscli
-mise
-neovim
-shellcheck
+logcli
 # --- mesh, sync, backup
 tailscale
 syncthing
@@ -47,6 +77,14 @@ restic
 fwupd
 power-profiles-daemon
 brightnessctl
+# --- network diagnostics
+gping
+trippy
+bandwhich
+dog
 # --- gui
 obsidian
 localsend
+bitwarden
+telegram-desktop
+dbeaver

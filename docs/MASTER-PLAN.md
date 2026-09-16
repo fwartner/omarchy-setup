@@ -2,7 +2,7 @@
 
 Personal workstation fleet on Omarchy Linux, separate from the Pixel & Process Mac, wired into the existing infrastructure (Headscale mesh, `*.intern.pixelandprocess.de` services, Vaultwarden, the shared Kubernetes cluster) and built for agentic coding.
 
-Status: 2026-09-16 · Omarchy 4.0.x stable (Quickshell shell, Lua Hyprland config, `linux-omarchy` kernel) · target: older Dell + Lenovo notebooks, all interchangeable.
+Status: 2026-09-16 · Omarchy 4.0.x stable (Quickshell shell, Lua Hyprland config, `linux-omarchy` kernel) · fleet: Dell Latitude 7310 (`daily`) + Lenovo V130-15IGM 81HL (`spare`), same bootstrap, role flag decides extras. Tool choices and versions: `docs/TOOLING.md`.
 
 The ISO version is deliberately not pinned in this repo. `scripts/mac/latest-iso.sh` reads the version, URL and SHA256 straight from the release notes, so a new Omarchy release needs no edit here.
 
@@ -68,7 +68,8 @@ Layers, bottom to top:
 | Packages | `packages/pacman.txt` + `packages/aur.txt`, installed with `omarchy-pkg-add` / `yay` | Declarative enough; Omarchy blocks raw `pacman -Syu`, so updates stay `omarchy update`. |
 | Dev runtimes | `mise` (Omarchy's own mechanism: `omarchy install dev-env <lang>`) | Node/Bun/Go/Python/PHP via mise, same versions on every laptop from `~/.config/mise/config.toml`. |
 | Editors | VS Code (Install > Editor), Cursor optional, Neovim stays as default `$EDITOR` for terminal work | VS Code settings + extension list come from the repo; Omarchy theme-matches VS Code and Cursor. |
-| Agents | Claude Code, Codex CLI, `gh`; MCP servers for AFFiNE, Home Assistant, Context7 | Same setup as on the Mac. Omarchy's default coding-agent picker points to Claude Code. |
+| Terminal | Ghostty + Starship on bash, **herdr** as agent-aware multiplexer, atuin history, yazi, television | Chosen in `docs/TOOLING.md`; herdr shows per-pane agent state and attaches remotely over the mesh. |
+| Agents | Claude Code, Codex CLI, OpenCode (→ FreeLLM), Hermes CLI (client), `gh`; MCP: AFFiNE, Home Assistant, Context7, Sentry, Linear, GitHub, Playwright; `wt` worktree-per-task | Same setup as on the Mac. Omarchy's default coding-agent picker points to Claude Code. No local models. |
 | Containers | Docker (rootful; opt into `Setup > Security > Sudoless Docker` only on machines you trust) | Local dev DBs via Install > Development > Docker DB. |
 | Sync | Syncthing for `~/Projects/claude-obsidian` (Obsidian vault) and `~/Sync`; git for everything else | Vault also has a git remote as backup; Syncthing gives instant multi-laptop sync without a cloud. |
 | Backups | restic → Hetzner Object Storage (`nbg1`), own bucket and own key pair, nightly systemd timer, `~/Projects` + `~/.config` excluded caches | Laptops are disposable only if backups are boring. Separate bucket and credentials from `pp-cluster-backups` so a stolen laptop key is not also a key to customer database backups. |
@@ -147,6 +148,8 @@ All are asked once by `.chezmoi.toml.tmpl` on first `chezmoi init` and stored in
 
 ## 6. Risks and mitigations
 
+- Lenovo V130 (Gemini Lake N4000, 4 GB, 768p TN): not a daily driver as-is — Hyprland + Chromium + VS Code will swap. It's the agent-runner/spare; an 8 GB SO-DIMM (single slot, ~20 €) and a SATA SSD make it usable. Wi-Fi card varies by SKU (Realtek 8821CE / Qualcomm QCA9377 / Intel 3165) — all mainline, Realtek has a DKMS fallback.
+- Dell Latitude 7310: BIOS SATA mode defaults to RAID/RST → set AHCI before the installer looks for the NVMe. Fingerprint reader is Broadcom ControlVault, optional proprietary blob only.
 - Old Wi-Fi chipsets (Broadcom on some Dells): Arch dropped the prebuilt module; Omarchy 4.0.3 moved to DKMS. DKMS rebuilds on every kernel update — keep a USB Ethernet adapter in the drawer for the first boot.
 - Custom `linux-omarchy` kernel: good for old hardware, but if a laptop misbehaves, the bootloader still offers the stock `linux` entry and Btrfs snapshots.
 - Vault availability: Vaultwarden does not exist yet; it goes onto the shared cluster as step one (`pixelandprocess-gitops/apps/internal/vaultwarden`). Bootstrap joins Headscale first (pre-auth key is the only pasted secret) and only then talks to `secrets.intern`, so the vault can stay mesh-only.

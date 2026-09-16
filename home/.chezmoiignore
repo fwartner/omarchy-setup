@@ -2,3 +2,6 @@ README.md
 {{ if ne .wifi_driver "broadcom" }}
 .config/omarchy/hooks/post-update.d/20-broadcom-dkms.sh
 {{ end }}
+{{ if ne .wifi_driver "rtl8821ce" }}
+.config/omarchy/hooks/post-update.d/21-rtl8821ce-dkms.sh
+{{ end }}

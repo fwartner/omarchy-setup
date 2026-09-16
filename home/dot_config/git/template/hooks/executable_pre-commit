@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Installed into every new clone via init.templateDir. Runs gitleaks on staged changes;
+# if the repo has its own .pre-commit-config.yaml, defer to pre-commit instead.
+if [ -f .pre-commit-config.yaml ] && command -v pre-commit >/dev/null; then
+  exec pre-commit run --hook-stage pre-commit
+fi
+if command -v gitleaks >/dev/null; then
+  gitleaks git --staged --redact --no-banner || { echo "gitleaks: secret detected, commit blocked" >&2; exit 1; }
+fi

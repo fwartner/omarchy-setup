@@ -1,0 +1,47 @@
+# chezmoi-managed. Minimal two-line prompt with the context that matters on a dev/ops laptop.
+format = """
+$directory$git_branch$git_status$jj_status$nodejs$bun$php$golang$python$kubernetes$docker_context
+$character"""
+add_newline = true
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+symbol = " "
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+
+[nodejs]
+format = "[$symbol($version )]($style)"
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+
+[bun]
+format = "[$symbol($version )]($style)"
+
+[php]
+format = "[$symbol($version )]($style)"
+
+[golang]
+format = "[$symbol($version )]($style)"
+
+[python]
+format = "[$symbol($version )]($style)"
+
+[kubernetes]
+disabled = false
+format = "[$symbol$context( \\($namespace\\))]($style) "
+# only show when a kube context is active and we're in an infra-ish dir
+detect_folders = ["k8s", "kubernetes", "helm", "charts", "apps", "infra"]
+detect_files = ["kustomization.yaml", "Chart.yaml", "skaffold.yaml"]
+
+[docker_context]
+format = "[$symbol$context]($style) "
+only_with_files = true
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"

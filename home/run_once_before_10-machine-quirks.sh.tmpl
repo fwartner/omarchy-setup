@@ -10,8 +10,23 @@ fi
 {{ if eq .wifi_driver "broadcom" -}}
 # Broadcom Wi-Fi: Arch dropped prebuilt broadcom-wl; Omarchy 4.0.3+ uses DKMS.
 if ! pacman -Q broadcom-wl-dkms >/dev/null 2>&1; then
-  sudo omarchy-pkg-add dkms linux-omarchy-headers linux-headers broadcom-wl-dkms || \
-  sudo omarchy-pkg-add dkms linux-headers broadcom-wl-dkms
+  sudo omarchy-pkg-add dkms linux-omarchy-headers broadcom-wl-dkms 2>/dev/null \
+    || sudo omarchy-pkg-add dkms linux-headers broadcom-wl-dkms
+fi
+{{- end }}
+
+{{ if eq .wifi_driver "rtl8821ce" -}}
+# Realtek RTL8821CE that drops with mainline rtw88: out-of-tree module + ASPM workaround.
+if ! pacman -Q rtl8821ce-dkms-git >/dev/null 2>&1; then
+  sudo omarchy-pkg-add dkms linux-omarchy-headers 2>/dev/null || sudo omarchy-pkg-add dkms linux-headers
+  yay -S --needed --noconfirm rtl8821ce-dkms-git
+  printf 'blacklist rtw88_8821ce\nblacklist rtw_8821ce\n' | sudo tee /etc/modprobe.d/rtl8821ce.conf >/dev/null
+  # limine/systemd-boot: Omarchy manages the kernel cmdline; add the ASPM flag through its helper if present
+  if command -v omarchy-kernel-cmdline-add >/dev/null 2>&1; then
+    sudo omarchy-kernel-cmdline-add pcie_aspm.policy=performance || true
+  else
+    echo "NOTE: add pcie_aspm.policy=performance to the kernel cmdline manually (see docs/INVENTORY.md)"
+  fi
 fi
 {{- end }}
 
@@ -22,6 +37,9 @@ omarchy-setup-security-sudoless-docker 2>/dev/null || sudo usermod -aG docker "$
 
 # docker enabled
 sudo systemctl enable --now docker
+
+# global git hooks template (gitleaks via pre-commit in every new clone)
+mkdir -p "$HOME/.config/git/template/hooks"
 
 # ~/.bashrc sources our snippets (Omarchy never overwrites ~/.bashrc)
 if ! grep -q 'bashrc.d' "$HOME/.bashrc" 2>/dev/null; then

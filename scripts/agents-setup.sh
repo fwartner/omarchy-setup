@@ -57,6 +57,31 @@ if have claude; then
   # Context7 docs
   claude mcp remove context7 -s user >/dev/null 2>&1 || true
   claude mcp add --transport http context7 https://mcp.context7.com/mcp -s user || true
+  # Sentry (OAuth on first use), Linear (OAuth), GitHub (uses gh token), Playwright (local)
+  claude mcp remove sentry -s user >/dev/null 2>&1 || true
+  claude mcp add --transport http sentry https://mcp.sentry.dev/mcp -s user || true
+  claude mcp remove linear -s user >/dev/null 2>&1 || true
+  claude mcp add --transport http linear https://mcp.linear.app/mcp -s user || true
+  claude mcp remove github -s user >/dev/null 2>&1 || true
+  if gh auth token >/dev/null 2>&1; then
+    claude mcp add --transport http github https://api.githubcopilot.com/mcp/ -s user \
+      --header "Authorization: Bearer $(gh auth token)" || true
+  fi
+  claude mcp remove playwright -s user >/dev/null 2>&1 || true
+  claude mcp add playwright -s user -- npx -y @playwright/mcp@latest || true
+fi
+
+# --- OpenCode (AUR opencode-bin) — config from chezmoi points at FreeLLM ----
+have opencode || echo "opencode not found (AUR opencode-bin should have installed it)"
+
+# --- Hermes Agent: CLI/client only, no daemon on laptops -------------------
+if ! have hermes; then
+  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash || true
+fi
+
+# --- herdr integrations (agent state detection) ----------------------------
+if have herdr; then
+  for a in claude codex opencode hermes; do herdr integration install "$a" >/dev/null 2>&1 || true; done
 fi
 
 echo "agents installed. Interactive logins still needed: 'claude' and 'codex login'."
