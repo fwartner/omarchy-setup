@@ -109,12 +109,14 @@ Quarterly
 | `headscale-preauth` | Login | scripts/headscale-join.sh (manual paste) | password = key |
 | `ssh-laptops` | Secure note | ~/.ssh/id_ed25519_laptops(.pub) | notes = private key, custom field `public_key` |
 | `github-token-laptops` | Login | gh auth | password = fine-grained PAT (repo, read:org, workflow) |
-| `affine-mcp` | Login | Claude MCP | password = token, custom field `url` = MCP endpoint |
+| `affine-mcp` | Login | Claude MCP | password = `aff_mcp_v1.` token, custom field `url` = `https://notes.intern.pixelandprocess.de/api/workspaces/<workspace-id>/mcp` |
 | `homeassistant-mcp` | Login | Claude MCP | password = long-lived token, custom field `url` = `http://<ha-tailscale-name>:8123` |
 | `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-ro` (ServiceAccount `laptops`, ClusterRole `view` + node read; no Secrets, no writes) |
 | `restic-laptops` | Login | restic timer | password = repo password, custom fields `repository`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
 
 Generate the fleet SSH key once on the Mac: `ssh-keygen -t ed25519 -C laptops -f ~/Desktop/id_ed25519_laptops`, paste into the vault item, add the `.pub` to GitHub and to the Serverschrank's `authorized_keys`, then delete the local copies.
+
+Create the AFFiNE credential **inside the self-hosted instance** (`https://notes.intern.pixelandprocess.de` → Settings → Integrations → MCP Server), not through the button on affine.pro, which sends you to AFFiNE Cloud. A cloud-issued token fails against the self-hosted endpoint with a 401 that is byte-identical to the one you get for sending no credential at all, so there is nothing in the error to tell you which mistake you made. Transport is streamable HTTP; the endpoint is stateless and returns no `mcp-session-id`.
 
 `rbw` reads items but cannot create them or set custom fields. Creating and updating these items is done on the Mac with the official Bitwarden CLI (`brew install bitwarden-cli`, `bw config server https://secrets.intern.pixelandprocess.de`). The laptops only ever read, so they only need `rbw`.
 
