@@ -6,9 +6,12 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
 
 - [ ] Vaultwarden is live at `https://secrets.intern.pixelandprocess.de` and `rbw list` works from the Mac (see `apps/internal/vaultwarden/README.md` in pixelandprocess-gitops).
 - [ ] All vault items from §Secrets below exist.
-- [ ] Headscale: `headscale users list` shows `florian`; ACL has `tag:laptop`; create a key:
-      `headscale preauthkeys create --user florian --reusable --expiration 24h --tags tag:laptop`
-      → paste it into vault item `headscale-preauth` (or keep it on the clipboard).
+- [ ] Headscale: `headscale users list` shows `florian`. Mint a key with
+      `./scripts/mac/new-laptop-key.sh`, which writes it into vault item `headscale-preauth`.
+      There is no ACL policy: headscale runs `policy.mode: database` with no rows, which means
+      allow-all inside the tailnet. `tag:laptop` is forced server-side from the pre-auth key and
+      needs no `tagOwners` entry, so the tag is a label, not an access boundary. Writing a first
+      policy would flip the whole tailnet to deny-by-default — a separate, deliberate change.
 - [ ] Repo pushed: `github.com/fwartner/omarchy-setup` (private). `bootstrap.sh` raw URL works.
 - [ ] USB stick with `omarchy-4.0.4.iso` (verify SHA256 from the release page).
 - [ ] Inventory row filled in `docs/INVENTORY.md` (hostname, DPI scale, Wi-Fi chipset).
@@ -60,10 +63,10 @@ You will be asked, in this order:
 ## 5. Reboot and verify (5 min)
 
 - [ ] Reboot (Hyprland overrides, docker group, hostname).
-- [ ] `~/.local/share/omarchy-setup/scripts/verify.sh` → all green. Typical first-run reds: Home Assistant (mDNS `homeassistant.local` doesn't resolve over the mesh — use its Tailscale name in `ha_url` instead), kubectl (kubeconfig item missing).
+- [ ] `~/.local/share/omarchy-setup/scripts/verify.sh` → all green. Typical first-run reds: kubectl (kubeconfig item missing). Home Assistant is reached at `http://homeassistant.ts.pixelandprocess.de:8123` — the MagicDNS name, because mDNS does not cross the mesh.
 - [ ] Open VS Code (`Super + E`), theme matches Omarchy, Claude Code extension logged in.
 - [ ] `proj` opens the fuzzy switcher; `clone fwartner/<repo>` works.
-- [ ] `kubectl get nodes` returns the cluster.
+- [ ] `kubectl get nodes` returns the cluster. Writes must fail: `kubectl auth can-i delete pods` → `no`.
 - [ ] Obsidian opens `~/Projects/claude-obsidian` and shows the `hermes/` folder synced from the Mac.
 - [ ] `systemctl --user list-timers` shows `restic-backup.timer`. Run once by hand: `systemctl --user start restic-backup.service`, then `restic snapshots`.
 
@@ -95,6 +98,7 @@ Monthly
 Quarterly
 
 - [ ] Rotate `github-token-laptops`, Headscale pre-auth keys (they expire anyway), Home Assistant and AFFiNE tokens → update vault items → `chezmoi apply` + `agents-setup.sh` on each laptop.
+      `github-token-laptops` currently holds a **classic** PAT whose scopes include `admin:org`, `admin:enterprise` and `delete_repo`, and classic PATs inherit org access, so it reaches Pixel-Process-UG repos too. Replacing it with a fine-grained token (owner `fwartner`, Contents RW / Workflows RW / Metadata R / Pull requests RW) is the single biggest reduction in blast radius for a lost laptop. Until then, revoking it is step one of the lost-laptop drill below.
 - [ ] `restic check` and a test restore of one file.
 - [ ] Prune Headscale nodes that no longer exist.
 
@@ -107,13 +111,15 @@ Quarterly
 | `github-token-laptops` | Login | gh auth | password = fine-grained PAT (repo, read:org, workflow) |
 | `affine-mcp` | Login | Claude MCP | password = token, custom field `url` = MCP endpoint |
 | `homeassistant-mcp` | Login | Claude MCP | password = long-lived token, custom field `url` = `http://<ha-tailscale-name>:8123` |
-| `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML (a read-mostly service-account context, not cluster-admin) |
-| `restic-laptops` | Login | restic timer | password = repo password, custom field `repository` |
+| `kubeconfig-shared` | Secure note | ~/.kube/config | notes = kubeconfig YAML, context `pp-shared-ro` (ServiceAccount `laptops`, ClusterRole `view` + node read; no Secrets, no writes) |
+| `restic-laptops` | Login | restic timer | password = repo password, custom fields `repository`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
 
 Generate the fleet SSH key once on the Mac: `ssh-keygen -t ed25519 -C laptops -f ~/Desktop/id_ed25519_laptops`, paste into the vault item, add the `.pub` to GitHub and to the Serverschrank's `authorized_keys`, then delete the local copies.
+
+`rbw` reads items but cannot create them or set custom fields. Creating and updating these items is done on the Mac with the official Bitwarden CLI (`brew install bitwarden-cli`, `bw config server https://secrets.intern.pixelandprocess.de`). The laptops only ever read, so they only need `rbw`.
 
 ## Rollback
 
 - Omarchy update broke something: reboot, choose the previous Btrfs snapshot in the boot menu.
 - Dotfiles broke something: `chezmoi apply --dry-run --verbose` shows the diff; `omarchy reinstall configs` restores Omarchy defaults, then fix the repo and `chezmoi apply`.
-- Laptop lost: `headscale nodes delete`, rotate `github-token-laptops` and `ssh-laptops`, revoke the HA/AFFiNE tokens, `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.
+- Laptop lost: revoke `github-token-laptops` first (it is currently an org-wide classic PAT), then `headscale nodes delete`, rotate `ssh-laptops`, revoke the HA/AFFiNE tokens, and rotate the Hetzner S3 key pair in `restic-laptops`. `restic snapshots --host <hostname>` still has the data. LUKS protects the disk itself.
