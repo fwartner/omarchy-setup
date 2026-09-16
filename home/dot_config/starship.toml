@@ -1,6 +1,6 @@
 # chezmoi-managed. Minimal two-line prompt with the context that matters on a dev/ops laptop.
 format = """
-$directory$git_branch$git_status$jj_status$nodejs$bun$php$golang$python$kubernetes$docker_context
+$directory$git_branch$git_status$jj_status$nodejs$bun$php$golang$python$kubernetes
 $character"""
 add_newline = true
 
@@ -38,9 +38,6 @@ format = "[$symbol$context( \\($namespace\\))]($style) "
 detect_folders = ["k8s", "kubernetes", "helm", "charts", "apps", "infra"]
 detect_files = ["kustomization.yaml", "Chart.yaml", "skaffold.yaml"]
 
-[docker_context]
-format = "[$symbol$context]($style) "
-only_with_files = true
 
 [character]
 success_symbol = "[❯](bold green)"
