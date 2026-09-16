@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 128m   # attachments
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"  # websocket notifications
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [secrets.intern.pixelandprocess.de]
+      secretName: vaultwarden-tls
+  rules:
+    - host: secrets.intern.pixelandprocess.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: http

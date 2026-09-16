@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(npm *)",
+      "Bash(bun *)",
+      "Bash(composer *)",
+      "Bash(php artisan *)",
+      "Bash(docker compose *)",
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl logs *)",
+      "Read",
+      "Edit",
+      "Write",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:laravel.com)",
+      "WebFetch(domain:vuejs.org)"
+    ],
+    "deny": [
+      "Bash(kubectl delete *)",
+      "Bash(kubectl apply *)",
+      "Bash(helm upgrade *)",
+      "Bash(terraform apply *)",
+      "Bash(rm -rf /*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.kube/**)",
+      "Read(~/.config/rbw/**)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
+  },
+  "includeCoAuthoredBy": true
+}

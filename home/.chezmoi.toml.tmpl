@@ -1,0 +1,33 @@
+{{- /* Per-machine data. Asked once on `chezmoi init`, stored in ~/.config/chezmoi/chezmoi.toml */ -}}
+{{- $hostname := promptStringOnce . "hostname" "Hostname for this laptop (e.g. dell-7490)" (output "hostname" | trim) -}}
+{{- $gdk_scale := promptIntOnce . "gdk_scale" "Display scale (1 for 1080p/768p panels, 2 for HiDPI)" 1 -}}
+{{- $wifi_driver := promptChoiceOnce . "wifi_driver" "Wi-Fi driver quirk" (list "none" "broadcom") -}}
+{{- $install_cursor := promptBoolOnce . "install_cursor" "Install Cursor in addition to VS Code" false -}}
+{{- $sudoless_docker := promptBoolOnce . "sudoless_docker" "Add user to docker group (sudoless docker)" false -}}
+{{- $role := promptChoiceOnce . "role" "Machine role" (list "daily" "spare") -}}
+
+# ---- fleet-wide constants (edit here, not per machine) ----
+[data]
+    hostname        = {{ $hostname | quote }}
+    gdk_scale       = {{ $gdk_scale }}
+    wifi_driver     = {{ $wifi_driver | quote }}
+    install_cursor  = {{ $install_cursor }}
+    sudoless_docker = {{ $sudoless_docker }}
+    role            = {{ $role | quote }}
+
+    headscale_url   = "https://headscale.intern.pixelandprocess.de"   # TODO: confirm real URL
+    vault_url       = "https://secrets.intern.pixelandprocess.de"    # Vaultwarden (deployed via infra/vaultwarden/)
+    vault_email     = "florian@pixelandprocess.de"
+    git_name        = "Florian Wartner"
+    git_email       = "florian@pixelandprocess.de"
+    github_user     = "fwartner"
+    freellm_url     = "https://llm.intern.pixelandprocess.de"
+    affine_url      = "https://notes.intern.pixelandprocess.de"
+    ha_url          = "http://homeassistant.local:8123"
+
+[edit]
+    command = "nvim"
+
+[diff]
+    command = "delta"
+    pager   = "delta"

@@ -1,0 +1,29 @@
+[user]
+    name = {{ .git_name }}
+    email = {{ .git_email }}
+[init]
+    defaultBranch = main
+[pull]
+    rebase = true
+[push]
+    autoSetupRemote = true
+[fetch]
+    prune = true
+[rerere]
+    enabled = true
+[core]
+    pager = delta
+    editor = nvim
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    side-by-side = true
+[merge]
+    conflictstyle = zdiff3
+[diff]
+    colorMoved = default
+[credential "https://github.com"]
+    helper = !gh auth git-credential
+[url "git@github.com:"]
+    insteadOf = gh:

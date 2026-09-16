@@ -1,0 +1,3 @@
+# AUR packages (installed via yay). Keep this short — every AUR package is a build on every laptop.
+krew-bin
+# broadcom-wl-dkms is installed conditionally by chezmoi's run_once script, not here

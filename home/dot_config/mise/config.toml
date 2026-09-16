@@ -1,0 +1,11 @@
+# Fleet-wide runtime versions. `mise install` on any laptop yields the same toolchain.
+[tools]
+node = "lts"
+bun = "latest"
+go = "latest"
+python = "3.13"
+# php comes from pacman via `omarchy install dev-env php` (needs system extensions)
+
+[settings]
+experimental = true
+legacy_version_file = true   # honour .nvmrc / .node-version / .tool-versions in repos

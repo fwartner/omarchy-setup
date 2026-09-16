@@ -1,0 +1,52 @@
+# Arch / Omarchy repo packages (installed via omarchy-pkg-add). One per line.
+# --- shell & cli
+chezmoi
+rbw
+pinentry
+git
+git-delta
+lazygit
+jq
+yq
+fzf
+ripgrep
+fd
+bat
+eza
+zoxide
+tmux
+htop
+btop
+ncdu
+tree
+unzip
+zip
+rsync
+wget
+curl
+openssh
+# --- dev
+docker
+docker-compose
+docker-buildx
+github-cli
+kubectl
+helm
+k9s
+kubectx
+terraform
+awscli
+mise
+neovim
+shellcheck
+# --- mesh, sync, backup
+tailscale
+syncthing
+restic
+# --- hardware / laptop
+fwupd
+power-profiles-daemon
+brightnessctl
+# --- gui
+obsidian
+localsend

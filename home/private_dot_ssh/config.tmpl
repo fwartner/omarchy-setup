@@ -1,0 +1,15 @@
+# chezmoi-managed. Laptops reach each other and the Serverschrank via Tailscale SSH
+# (no keys needed). GitHub uses the fleet key from the vault item "ssh-laptops".
+Host *
+    AddKeysToAgent yes
+    ServerAliveInterval 30
+    IdentitiesOnly yes
+
+Host github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_laptops
+
+# Serverschrank / homelab boxes over the mesh (MagicDNS names from Headscale)
+Host *.tail* serverschrank homeassistant
+    User florian
+    ForwardAgent no

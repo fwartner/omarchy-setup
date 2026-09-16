@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# chezmoi run_once: machine-specific one-time setup, before dotfiles are applied.
+set -euo pipefail
+
+# hostname
+if [ "$(hostnamectl --static)" != {{ .hostname | quote }} ]; then
+  sudo hostnamectl set-hostname {{ .hostname | quote }}
+fi
+
+{{ if eq .wifi_driver "broadcom" -}}
+# Broadcom Wi-Fi: Arch dropped prebuilt broadcom-wl; Omarchy 4.0.3+ uses DKMS.
+if ! pacman -Q broadcom-wl-dkms >/dev/null 2>&1; then
+  sudo omarchy-pkg-add dkms linux-omarchy-headers linux-headers broadcom-wl-dkms || \
+  sudo omarchy-pkg-add dkms linux-headers broadcom-wl-dkms
+fi
+{{- end }}
+
+{{ if .sudoless_docker -}}
+# opt-in per machine (Omarchy 4.0.1+ no longer adds the user to docker by default)
+omarchy-setup-security-sudoless-docker 2>/dev/null || sudo usermod -aG docker "$USER"
+{{- end }}
+
+# docker enabled
+sudo systemctl enable --now docker
+
+# ~/.bashrc sources our snippets (Omarchy never overwrites ~/.bashrc)
+if ! grep -q 'bashrc.d' "$HOME/.bashrc" 2>/dev/null; then
+  cat >> "$HOME/.bashrc" <<'EOF'
+
+# --- omarchy-setup: personal snippets ---
+for f in "$HOME"/.bashrc.d/*.sh; do [ -r "$f" ] && . "$f"; done
+EOF
+fi

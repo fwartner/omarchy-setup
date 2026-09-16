@@ -1,0 +1,4 @@
+README.md
+{{ if ne .wifi_driver "broadcom" }}
+.config/omarchy/hooks/post-update.d/20-broadcom-dkms.sh
+{{ end }}
