@@ -72,6 +72,7 @@ opentofu
 terraform
 aws-cli-v2
 logcli
+lsof
 # --- mesh, sync, backup
 tailscale
 syncthing
