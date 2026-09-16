@@ -13,7 +13,10 @@ Print this or keep it open on the Mac. Every laptop follows the same list; only 
       needs no `tagOwners` entry, so the tag is a label, not an access boundary. Writing a first
       policy would flip the whole tailnet to deny-by-default — a separate, deliberate change.
 - [ ] Repo pushed: `github.com/fwartner/omarchy-setup` (private). `bootstrap.sh` raw URL works.
-- [ ] USB stick with `omarchy-4.0.4.iso` (verify SHA256 from the release page).
+- [ ] USB stick with the current Omarchy ISO. `./scripts/mac/latest-iso.sh --download` reads
+      the version, URL and SHA256 out of the release notes, fetches into `~/Downloads` and
+      verifies; it exits non-zero on a mismatch and skips the download if the file is already
+      correct. No version is pinned anywhere in this repo — Omarchy ships roughly weekly.
 - [ ] Inventory row filled in `docs/INVENTORY.md` (hostname, DPI scale, Wi-Fi chipset).
 - [ ] A USB-Ethernet adapter or phone tethering nearby in case Wi-Fi needs DKMS.
 

@@ -2,7 +2,9 @@
 
 Personal workstation fleet on Omarchy Linux, separate from the Pixel & Process Mac, wired into the existing infrastructure (Headscale mesh, `*.intern.pixelandprocess.de` services, Vaultwarden, the shared Kubernetes cluster) and built for agentic coding.
 
-Status: 2026-09-16 · Omarchy 4.0.4 (Quickshell shell, Lua Hyprland config, `linux-omarchy` kernel) · target: older Dell + Lenovo notebooks, all interchangeable.
+Status: 2026-09-16 · Omarchy 4.0.x stable (Quickshell shell, Lua Hyprland config, `linux-omarchy` kernel) · target: older Dell + Lenovo notebooks, all interchangeable.
+
+The ISO version is deliberately not pinned in this repo. `scripts/mac/latest-iso.sh` reads the version, URL and SHA256 straight from the release notes, so a new Omarchy release needs no edit here.
 
 ---
 
@@ -103,7 +105,7 @@ Layers, bottom to top:
 - Headscale: user `florian` already exists. `tag:laptop` is forced server-side from the pre-auth key and needs no ACL policy — headscale runs `policy.mode: database` with no rows, i.e. allow-all inside the tailnet. Mint keys with `scripts/mac/new-laptop-key.sh` right before each install (they expire in 24h); it stores them in Vaultwarden.
 - Vaultwarden: create the items listed in `docs/RUNBOOK.md` §Secrets (SSH key, gh token, Anthropic/OpenAI API keys if used outside subscriptions, kubeconfig, restic repo + password, Syncthing device IDs).
 - Push this repo to `github.com/fwartner/omarchy-setup` (private).
-- Download `omarchy-4.0.4.iso`, verify SHA256, write one USB stick.
+- `scripts/mac/latest-iso.sh --download` — fetches the current ISO and verifies its SHA256 against the release notes. Write one USB stick.
 
 ### Phase 1 — Pilot laptop (1 evening)
 
@@ -181,6 +183,7 @@ omarchy-setup/
 │   ├── kube-setup.sh            kubeconfig from vault, kubectl/helm plugins
 │   ├── sync-setup.sh            Syncthing + restic timer
 │   ├── mac/new-laptop-key.sh    (Mac) mint a Headscale pre-auth key into the vault
+│   ├── mac/latest-iso.sh        (Mac) resolve + verify the current Omarchy ISO
 │   └── verify.sh                post-install checks
 └── home/                        chezmoi source directory
     ├── .chezmoi.toml.tmpl       per-machine prompts
