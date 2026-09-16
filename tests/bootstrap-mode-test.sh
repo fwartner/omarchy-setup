@@ -38,6 +38,16 @@ done
 git -C "$TMP/repo" add -A
 git -C "$TMP/repo" -c user.email=t@t -c user.name=t commit -qm init
 git -C "$TMP/repo" push -q -u origin main
+# git sets refs/remotes/origin/HEAD on clone or fetch depending on version and
+# on whether the remote had a HEAD at the time. Delete it so every machine
+# exercises the branch that does not have it: reading it with symbolic-ref used
+# to exit 128 and, through pipefail and set -e, kill bootstrap at step 2/9 with
+# no output at all. CI hit that; a newer local git did not.
+git -C "$TMP/repo" symbolic-ref -d refs/remotes/origin/HEAD 2>/dev/null || true
+# Deleting the local copy is not enough: `git fetch` recreates it from the
+# remote's HEAD. Drop it on the origin too, so the ref genuinely cannot be
+# resolved -- which is the state a bare mirror or a detached remote leaves.
+git -C "$TMP/origin.git" symbolic-ref -d HEAD 2>/dev/null || true
 
 # --- shims for everything steps 0-2 reach for -------------------------------
 mkdir -p "$TMP/bin"
@@ -105,6 +115,19 @@ ARGS=(--full)
 run >/dev/null
 eq "installed anyway"     "$(grep -c 'chezmoi init' "$TMP/calls")"     "1"
 eq "did not delegate"     "$(grep -c 'update-all ran' "$TMP/calls")"   "0"
+
+echo "an unreachable origin is not fatal"
+# Also the only way to pin refs/remotes/origin/HEAD absent: a successful fetch
+# re-guesses it. Reading that ref with `symbolic-ref | sed` exits 128, pipefail
+# carries it past sed, and set -e ended the run here with nothing printed.
+ARGS=()
+mv "$TMP/origin.git" "$TMP/origin.gone"
+git -C "$TMP/repo" symbolic-ref -d refs/remotes/origin/HEAD 2>/dev/null || true
+RC="$(run)"
+eq "exit 0"               "$RC"                                        "0"
+eq "said origin was down" "$(grep -c 'could not reach origin' "$TMP/out")" "1"
+eq "still delegated"      "$(grep -c 'update-all ran' "$TMP/calls")"   "1"
+mv "$TMP/origin.gone" "$TMP/origin.git"
 
 echo "FULL_BOOTSTRAP=1 is the same switch"
 # Documented alongside the other overrides, and the only form that survives
