@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  shell:
+    name: shellcheck + bash -n
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: syntax
+        run: |
+          set -e
+          for f in bootstrap.sh scripts/*.sh home/dot_config/omarchy/hooks/post-update.d/*.sh home/dot_bashrc.d/*.sh; do
+            bash -n "$f"
+          done
+      - name: shellcheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          severity: warning
+          scandir: .
+          ignore_paths: home/dot_bashrc.d/20-projects.sh.tmpl
+
+  chezmoi:
+    name: chezmoi templates render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+      - name: render every template with fake data (no vault access in CI)
+        run: |
+          set -e
+          export HOME=/tmp/fakehome; mkdir -p "$HOME/.config/chezmoi"
+          cat > "$HOME/.config/chezmoi/chezmoi.toml" <<'EOF'
+          [data]
+            hostname = "ci-box"
+            gdk_scale = 1
+            wifi_driver = "none"
+            install_cursor = false
+            sudoless_docker = false
+            role = "daily"
+            headscale_url = "https://headscale.example"
+            vault_url = "https://secrets.example"
+            vault_email = "ci@example"
+            git_name = "CI"
+            git_email = "ci@example"
+            github_user = "ci"
+            freellm_url = "https://llm.example"
+            affine_url = "https://notes.example"
+            ha_url = "http://ha.example"
+          EOF
+          # templates that call rbw are skipped here; everything else must render
+          for t in $(find home -name '*.tmpl' ! -path '*private_dot_ssh/*id_ed25519*' ! -name '.chezmoi.toml.tmpl'); do
+            echo "== $t"
+            chezmoi execute-template --source "$PWD/home" < "$t" > /dev/null
+          done
+          chezmoi --source "$PWD/home" managed >/dev/null
+
+  kustomize:
+    name: kustomize build vaultwarden
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: kubectl kustomize infra/vaultwarden > /tmp/out.yaml && grep -c '^kind:' /tmp/out.yaml
