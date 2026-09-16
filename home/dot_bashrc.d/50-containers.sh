@@ -3,6 +3,11 @@
 # provides a `docker` command, but these point at podman directly so the aliases
 # do not depend on that shim being installed.
 
+# podman-docker cannot be installed (it conflicts with the docker package that
+# omarchy-base ships), so `docker` is aliased here instead. Same muscle memory,
+# no pacman conflict.
+alias docker='podman'
+alias docker-compose='podman-compose'
 alias d='podman'
 alias dps='podman ps'
 alias dpsa='podman ps -a'
